@@ -1,17 +1,25 @@
 <template>
-  <PollLogin> </PollLogin>
+  <v-app>
+    <div id="app">
+      <PollLogin></PollLogin>
+    </div>
+  </v-app>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "vue";
-import PollLogin from "./components/PollLogin.vue";
+<script>
+import PollLogin from './components/PollLogin';
 
-export default defineComponent({
-  name: "App",
+export default {
+  name: 'App',
+
   components: {
     PollLogin,
   },
-});
+
+  data: () => ({
+    //
+  }),
+};
 </script>
 
 <style lang="scss">

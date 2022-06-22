@@ -3,11 +3,11 @@
     <p class="login-header">Login</p>
     <v-form>
         <v-text-field 
-          v-model="username" 
+          v-model="login.username" 
           label="Username" 
         ></v-text-field>
         <v-text-field
-            v-model="password"
+            v-model="login.password"
             :append-icon="showpass ? 'mdi-eye' : 'mdi-eye-off'"
             :type="showpass ? 'text' : 'password'"
             label="Password"
@@ -17,6 +17,7 @@
           block
           color="primary"
           :disabled="btnDisabled"
+          @click="loginUser"
         >Log In</v-btn>
     </v-form>
   </div>
@@ -27,20 +28,30 @@ export default {
   name: 'PollLogin',
   data() {
     return {
+      login: {
         username: "",
         password: "",
-        showpass: false,
+      },
+      showpass: false,
     }
   },
   computed: {
     btnDisabled() {
-        return this.username === "" || this.password === "";
+        return this.login.username === "" || this.login.password === "";
     }
   },
   methods: {
-      login() {
-          console.log("logging in...");
-      }
+    loginUser() {
+        console.log("logging in...");
+        return this.$http.post("http://localhost:3030/user/login", {
+          username: this.login.username,
+          password: this.login.password
+        }).then(res => {
+          console.log(res);
+        }).catch(e => {
+          console.log(e);
+        });
+    }
   }
 }
 </script>

@@ -5,9 +5,9 @@
     <nav>
       <v-app-bar>
         <v-spacer></v-spacer>
-        <v-toolbar-title class="toolbar-text" v-if="this.displayName != ''">Hi, {{ this.displayName }}!</v-toolbar-title>
-        <v-btn v-if="this.token == null && this.$route.name != 'login'"><router-link to="/login">Login</router-link></v-btn>
-        <v-btn v-if="this.token != null" @click="loginModal = true">Logout</v-btn>
+        <v-toolbar-title class="toolbar-text" v-if="this.userInfo != null && this.userInfo.displayName != null">Hi, {{ this.userInfo.displayName }}!</v-toolbar-title>
+        <v-btn v-if="this.token == null && this.$route.name != 'login'" class="primary"><router-link to="/login">Login</router-link></v-btn>
+        <v-btn v-if="this.token != null" @click="loginModal = true" class="primary">Logout</v-btn>
         <v-dialog
           v-model="loginModal"
           :v-if="this.token != null"
@@ -31,8 +31,8 @@
         </v-dialog>
       </v-app-bar>
     </nav>
-    <p>Logged In: {{ this.token != null }}</p>
-    <p>Show login btn: {{ this.showLoginBtn }}</p>
+    <!-- <p>Logged In: {{ this.token != null }}</p>
+    <p>Show login btn: {{ this.showLoginBtn }}</p> -->
     <router-view/>
   </div>
   </v-app>
@@ -46,7 +46,8 @@ export default {
     return {
       token: null,
       loginModal: false,
-      displayName: ""
+      displayName: null,
+      userInfo: null
     }
   },
   methods: {
@@ -54,19 +55,18 @@ export default {
       // wipe JWT, redirect to login
       this.token = null;
       localStorage.removeItem("jwt");
-      this.displayName = '';
-      localStorage.removeItem("displayName");
+      this.userInfo = null;
       this.$router.push("/login");
     },
-    async getDisplayName() {
+    async getUserInfo() {
       return this.$http.get("http://localhost:3030/user/me", {
           headers: { Authorization: `Bearer ${this.token}` }
         }).then(res => {
           console.log(res.data);
-          let displayName = res.data.displayName;
-          if(displayName) this.displayName = displayName;
+          this.userInfo = res.data;
         }).catch(e => {
           console.log(e);
+        }).finally(() => {
           this.loggingIn = false;
         });
     }
@@ -79,33 +79,45 @@ export default {
   watch: {
     token(newToken) {
       localStorage.setItem("jwt", newToken);
+      if(newToken == null) localStorage.removeItem("jwt");
     },
     displayName(name) {
       localStorage.setItem("displayName", name);
+      if(name == null) localStorage.removeItem("displayName");
+    },
+    userInfo(newInfo) {
+      console.log("New User Info:");
+      console.log(newInfo);
+      console.log(typeof(newInfo));
+      localStorage.setItem("userInfo", JSON.stringify(newInfo));
+      if(newInfo == null) localStorage.removeItem("userInfo");
     }
   },
   created() {
+    this.$vuetify.theme.light = true 
     // receive JWT from PollLogin event
     bus.$on('logged-in', (newToken) => {
       this.token = newToken;
       localStorage.setItem("jwt", newToken);
-      this.getDisplayName();
+      this.getUserInfo();
       this.$router.push("/");
     });
-    // console.log(localStorage.getItem("jwt"))
-    // console.log(localStorage.getItem("jwt") == "null")
-    if(localStorage.getItem("jwt") == "null" || localStorage.getItem("jwt") == null) {
+
+    const localToken = localStorage.getItem("jwt");
+    if(localToken == "null" || localToken == null) {
       this.token = null;
     } else {
-      this.token = localStorage.getItem("jwt");
+      this.token = localToken;
     }
 
-    console.log(localStorage.getItem("displayName"))
-    if(localStorage.getItem("displayName") == "null" || localStorage.getItem("displayName") == null) {
-      this.displayName = "";
-    } else {
-      this.displayName = localStorage.getItem("displayName");
-    }
+    const localUserInfo = JSON.parse(localStorage.getItem("userInfo"));
+    if(this.userInfo == null) this.userInfo = localUserInfo;
+
+    // if(localStorage.getItem("displayName") == "null" || localStorage.getItem("displayName") == null) {
+    //   this.displayName = "";
+    // } else {
+    //   this.displayName = localStorage.getItem("displayName");
+    // }
   }
 }
 </script>

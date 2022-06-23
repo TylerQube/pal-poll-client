@@ -16,10 +16,10 @@
           ></v-text-field>
         <v-btn
           block
-          color="primary"
           :disabled="btnDisabled"
           :loading="loggingIn"
           @click="loginUser"
+          class="primary"
         >Log In</v-btn>
     </v-form>
   </div>

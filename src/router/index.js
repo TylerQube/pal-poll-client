@@ -2,6 +2,7 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import LoginView from '../views/LoginView.vue'
+import ProfileView from '../views/ProfileView'
 
 Vue.use(VueRouter)
 
@@ -15,18 +16,18 @@ const routes = [
     }
   },
   {
-    path: '/about',
-    name: 'about',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/AboutView.vue')
-  },
-  {
     path: '/login',
     name: 'login',
     component: LoginView
   },
+  {
+    path: '/profile',
+    name: 'profile',
+    component: ProfileView,
+    meta: {
+      requiresAuth: true
+    }
+  }
 ]
 
 const router = new VueRouter({
@@ -44,7 +45,6 @@ router.beforeEach(async (to, from, next) => {
     console.log("already logged in")
     return next(false)
   }
-  console.log("going to: " + to.name + " from " + from.name)
   return next();
 });
 

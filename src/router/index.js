@@ -9,7 +9,10 @@ const routes = [
   {
     path: '/',
     name: 'home',
-    component: HomeView
+    component: HomeView,
+    meta: {
+      requiresAuth: true
+    }
   },
   {
     path: '/about',
@@ -31,5 +34,18 @@ const router = new VueRouter({
   base: process.env.BASE_URL,
   routes
 })
+
+router.beforeEach(async (to, from, next) => {
+  if (to.meta.requiresAuth && localStorage.getItem("jwt") == null) {
+    console.log(to.name + " requires auth...")
+    return next({ name: 'login' })
+  }
+  else if (to.name == 'login' && localStorage.getItem("jwt") != null && localStorage.getItem('jwt') != "null") {
+    console.log("already logged in")
+    return next(false)
+  }
+  console.log("going to: " + to.name + " from " + from.name)
+  return next();
+});
 
 export default router

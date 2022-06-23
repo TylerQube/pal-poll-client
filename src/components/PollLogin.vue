@@ -1,5 +1,6 @@
 <template>
   <div class="container">
+    <p>pg50n3CM08N2</p>
     <p class="login-header">Login</p>
     <v-form>
         <v-text-field 
@@ -17,6 +18,7 @@
           block
           color="primary"
           :disabled="btnDisabled"
+          :loading="loggingIn"
           @click="loginUser"
         >Log In</v-btn>
     </v-form>
@@ -24,6 +26,8 @@
 </template>
 
 <script>
+import { bus } from '@/main';
+
 export default {
   name: 'PollLogin',
   data() {
@@ -33,6 +37,7 @@ export default {
         password: "",
       },
       showpass: false,
+      loggingIn: false
     }
   },
   computed: {
@@ -43,13 +48,22 @@ export default {
   methods: {
     loginUser() {
         console.log("logging in...");
+        this.loggingIn = true;
         return this.$http.post("http://localhost:3030/user/login", {
           username: this.login.username,
           password: this.login.password
         }).then(res => {
+          this.loggingIn = false;
           console.log(res);
+          let token = res.data.token;
+          if(token) {
+            // save jsonwebtoken in local storage for auth
+            bus.$emit('logged-in', token)
+            console.log("User Authenticated");
+          }
         }).catch(e => {
           console.log(e);
+          this.loggingIn = false;
         });
     }
   }

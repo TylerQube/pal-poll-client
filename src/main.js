@@ -7,6 +7,7 @@ import axios from 'axios'
 Vue.config.productionTip = false
 Vue.prototype.$http = axios
 
+export const bus = new Vue();
 new Vue({
   vuetify,
   router,

@@ -7,6 +7,7 @@
           <v-card
             class="profile-card"
           >
+          <v-form v-model="infoValid">
             <v-container>
               <v-row>
                 <h1>Profile</h1>
@@ -28,6 +29,7 @@
                   <v-text-field
                     v-model="profileInfo.email"
                     label="Email"
+                    :rules="[rules.email]"
                   ></v-text-field>
                 </v-col>
               </v-row>
@@ -54,12 +56,15 @@
                   <v-btn
                   block
                   class="primary"
-                  :disabled="!infoChanged"
+                  :disabled="!infoChanged || !infoValid"
+                  :loading="sendingUpdate"
+                  @click="updateInfo"
                   >Update Info</v-btn>  
                 </v-col>
                 
               </v-row>
             </v-container>
+          </v-form>
           </v-card>
         </v-col>
         <v-spacer></v-spacer>
@@ -71,6 +76,7 @@
 
 <script>
 // @ is an alias to /src
+import { bus } from '@/main';
 
 export default {
   name: 'ProfileView',
@@ -86,35 +92,68 @@ export default {
         email: "",
         username: ""
       },
-      infoChanged: false
+      rules: {
+        email: value => {
+          const pattern = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+          return pattern.test(value) || value == "" || 'Invalid e-mail.'
+        },
+      },
+      infoChanged: false,
+      infoValid: false,
+      sendingUpdate: false
     }
   },
   methods: {
-    
+    updateInfo() {
+      if(!this.infoChanged) return;
+      this.sendingUpdate = true;
+
+      const token = localStorage.getItem("jwt");
+      let config = {
+        
+      };
+      if(this.origInfo.email != this.profileInfo.email) config.email = this.profileInfo.email;
+      if(this.origInfo.displayName != this.profileInfo.displayName) config.displayName = this.profileInfo.displayName;
+
+      return this.$http.post("http://localhost:3030/user/updateinfo", config, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+        .then(res => {
+          console.log(res);
+          bus.$emit("new-token", res.data.token);
+          this.refreshOrigInfo();
+          this.checkInfoChange();
+        }).catch(e => {
+          console.log(e);
+        }).finally(() => {
+          this.sendingUpdate = false;
+        });
+    },
+    refreshOrigInfo() {
+      this.origInfo.displayName = this.profileInfo.displayName;
+      this.origInfo.email = this.profileInfo.email;
+      this.origInfo.username = this.profileInfo.username;
+    },
+    checkInfoChange() {
+      this.infoChanged = 
+          this.origInfo.displayName != this.profileInfo.displayName ||
+          this.origInfo.email != this.profileInfo.email ||
+          this.origInfo.username != this.profileInfo.username
+    }
   },
   created() {
     const storageJSON = localStorage.getItem("userInfo");
     const localUserInfo = JSON.parse(storageJSON);
-    console.log(localUserInfo);
     this.profileInfo.displayName = localUserInfo.displayName;
     this.profileInfo.email = localUserInfo.email;
     this.profileInfo.username = localUserInfo.name;
 
-    console.log("setting orig info")
-
-    this.origInfo.displayName = this.profileInfo.displayName;
-    this.origInfo.email = this.profileInfo.email;
-    this.origInfo.username = this.profileInfo.username;
-
+    this.refreshOrigInfo();
   },
   watch: {
     profileInfo: {
       handler() {
-        console.log("info changed")
-        this.infoChanged = 
-          this.origInfo.displayName != this.profileInfo.displayName ||
-          this.origInfo.email != this.profileInfo.email ||
-          this.origInfo.username != this.profileInfo.username
+        this.checkInfoChange();
       },
       deep: true
     }

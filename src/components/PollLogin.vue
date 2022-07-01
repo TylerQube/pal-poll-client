@@ -2,7 +2,7 @@
   <div class="container">
     <p>pg50n3CM08N2</p>
     <p class="login-header">Login</p>
-    <v-form>
+      <v-form>
         <v-text-field 
           v-model="login.username" 
           label="Username" 
@@ -14,14 +14,26 @@
             label="Password"
             @click:append="showpass = !showpass"
           ></v-text-field>
-        <v-btn
-          block
-          :disabled="btnDisabled"
-          :loading="loggingIn"
-          @click="loginUser"
-          class="primary"
-        >Log In</v-btn>
-    </v-form>
+        <v-row>
+          <v-spacer></v-spacer>
+          <v-col
+                  cols="12"
+                  sm="6"
+                  md="5"
+                >
+          <v-btn
+            block
+            :disabled="btnDisabled"
+            :loading="loggingIn"
+            @click="loginUser"
+            class="primary"
+            
+          >Log In</v-btn>
+          </v-col>
+          <v-spacer></v-spacer>
+        </v-row>
+      </v-form>
+    
   </div>
 </template>
 
@@ -58,7 +70,8 @@ export default {
           let token = res.data.token;
           if(token) {
             // save jsonwebtoken in local storage for auth
-            bus.$emit('logged-in', token)
+            bus.$emit('new-token', token)
+            bus.$emit('logged-in');
             console.log("User Authenticated");
           }
         }).catch(e => {

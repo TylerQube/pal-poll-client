@@ -1,6 +1,19 @@
 <template>
   <div class="login">
-    <PollLogin/>
+    <v-container>
+        <v-row>
+            <v-spacer></v-spacer>
+            <v-col
+                cols="12"
+                sm="6"
+                md="5"
+                lg="3"
+            >
+                <PollLogin/>
+            </v-col>
+            <v-spacer></v-spacer>
+        </v-row>
+    </v-container>
   </div>
 </template>
 

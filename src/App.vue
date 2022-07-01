@@ -59,6 +59,7 @@ export default {
       this.$router.push("/login");
     },
     async getUserInfo() {
+      console.log("refreshing user info...")
       return this.$http.get("http://localhost:3030/user/me", {
           headers: { Authorization: `Bearer ${this.token}` }
         }).then(res => {
@@ -86,9 +87,6 @@ export default {
       if(name == null) localStorage.removeItem("displayName");
     },
     userInfo(newInfo) {
-      console.log("New User Info:");
-      console.log(newInfo);
-      console.log(typeof(newInfo));
       localStorage.setItem("userInfo", JSON.stringify(newInfo));
       if(newInfo == null) localStorage.removeItem("userInfo");
     }
@@ -96,11 +94,18 @@ export default {
   created() {
     this.$vuetify.theme.light = true 
     // receive JWT from PollLogin event
-    bus.$on('logged-in', (newToken) => {
+    bus.$on('new-token', (newToken) => {
       this.token = newToken;
       localStorage.setItem("jwt", newToken);
       this.getUserInfo();
+    });
+
+    bus.$on('logged-in', () => {
       this.$router.push("/");
+    });
+
+    bus.$on('user-updated', () => {
+      this.getUserInfo();
     });
 
     const localToken = localStorage.getItem("jwt");
@@ -113,11 +118,7 @@ export default {
     const localUserInfo = JSON.parse(localStorage.getItem("userInfo"));
     if(this.userInfo == null) this.userInfo = localUserInfo;
 
-    // if(localStorage.getItem("displayName") == "null" || localStorage.getItem("displayName") == null) {
-    //   this.displayName = "";
-    // } else {
-    //   this.displayName = localStorage.getItem("displayName");
-    // }
+    
   }
 }
 </script>

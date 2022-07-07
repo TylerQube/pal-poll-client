@@ -53,12 +53,12 @@ router.beforeEach(async (to, from, next) => {
   }
   if (to.name == 'login' && localStorage.getItem("jwt") != null && localStorage.getItem('jwt') != "null") {
     console.log("already logged in")
-    return next(false)
+    return next({ name: 'home' })
   }
 
   if (to.meta.requiresAdmin && localStorage.getItem("jwt") == null) {
     console.log(to.name + " requires admin auth...")
-    return next(false)
+    return next({ name: 'home' })
   }
   else if (to.meta.requiresAdmin) {
     console.log("Must authenticate admin");

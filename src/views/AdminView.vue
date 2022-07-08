@@ -52,6 +52,7 @@
             <draggable
               :list="questions"
               @change="onChange"
+              handle=".drag-handle"
             >
               <v-card
                 v-for="(question, index) in questions"
@@ -104,13 +105,21 @@ export default {
 
         for(let i = 0; i < res.data.questions.length; i++) {
           const q = res.data.questions[i];
-          this.questions.push({
+
+
+          let newQuestion = {
             _id: q._id,
             orderNum: q.orderNum,
             questionBody: q.questionBody,
             answerOptions: q.answerOptions,
-            answerNumber: q.answerNumber
-          });
+            answerNumber: q.answerNumber,
+          };
+          if(q.answerOptions.length == 0) {
+            newQuestion.questionType = 'Poll';
+          } else {
+            newQuestion.questionType = 'Quiz';
+          }
+          this.questions.push(newQuestion);
         }
       }).catch(err => {
         console.log(err);
@@ -151,6 +160,7 @@ export default {
         }
         this.questions = [];
         this.questions = newQuestions;
+        bus.$emit('changed-order')
       }).catch(err => {
         console.log(err);
       });
@@ -160,13 +170,16 @@ export default {
     this.getQuestions(0, 10);
     bus.$on('delete-question', (qIndex) => {
       const qCount = this.questions.length - (qIndex + 1);
-      console.log("Deleting: " + qIndex);
-      console.log("slicing from: " + 0 + " to " + qIndex);
-      console.log("fetching " + qIndex + " to " + qCount );
 
       this.questions = this.questions.slice(0, qIndex);
+      console.log("qCount: " + qCount)
+
       this.getQuestions(qIndex, qCount);
-    })
+    });
+    bus.$on('added-question', () => {
+      console.log("Question added!!!!!")
+      this.getQuestions(this.questions.length, 1);
+    });
   },
 }
 </script>

@@ -27,12 +27,27 @@
           <v-col
             v-if="this.question"
             cols="auto"
+            class="drag-handle"
           >
-            <h1>{{ this.question != undefined ? this.question.orderNum+1 : "" }}</h1>
+            <h3>{{ this.question != undefined ? this.question.orderNum+1 : "" }}</h3>
+            <v-icon>
+              mdi-arrow-split-horizontal
+            </v-icon>
           </v-col>
           <v-col
-            cols="6"
-            sm="8"
+            cols="auto"
+            class="d-flex flex-row align-center"
+            v-if="this.$vuetify.breakpoint.name != 'sm' && this.$vuetify.breakpoint.name != 'xs'"
+          >
+            <v-icon
+              v-if="isQuiz"
+            >mdi-chat-question</v-icon>
+            <v-icon
+              v-else
+            >mdi-chart-bar</v-icon>
+          </v-col>
+          <v-col
+            cols="auto"
             md="8"
             lg="9"
             class="d-flex flex-row align-center"
@@ -61,7 +76,7 @@
               small
               depressed
               elevation="1"
-              @click="editing = !editing; if(!editing) cancelEdit()"
+              @click="editing = !editing; if(!editing) cancelEdit();"
             >
               <v-icon 
                 v-if="!editing"
@@ -80,8 +95,38 @@
           v-if="editing"
         >
         <v-row>
+          <v-col cols="auto">
+            <v-btn-toggle
+            v-model="questionForm.questionType"
+            mandatory
+            tile
+            color="deep-purple accent-3"
+            group
+            >
+              <v-btn value="Quiz">
+                <v-icon>
+                  mdi-chat-question
+                </v-icon>
+              </v-btn>
+              <v-btn value="Poll">
+                <v-icon>
+                  mdi-chart-bar
+                </v-icon>
+              </v-btn>
+            </v-btn-toggle>
+          </v-col>
+          <v-col
+            class="d-flex flex-row align-center"
+            cols="auto"
+          >
+            <h3 class="my-3">{{ questionForm.questionType }}</h3>
+          </v-col>
+        </v-row>
+        <template v-if="isQuiz">
+        <v-row>
           <h2 class="mb-3">Answer Options</h2>
         </v-row>
+        <v-radio-group v-model="questionForm.correctAnswer">
         <v-row
           v-for="(option, i) in questionForm.answerOptions"
           :key="i"
@@ -90,11 +135,11 @@
             class="pa-0"
             cols="auto"
           >
-            <v-checkbox
-              :input-value="questionForm.correctAnswer == i"
+            <v-radio
+              :value="i"
               @click="answerChecked(i)"
-              class="ma-0"
-            ></v-checkbox>
+              class="mt-2"
+            ></v-radio>
           </v-col>
           <v-col 
             class="pa-0"
@@ -126,6 +171,7 @@
             </v-icon>
           </v-col>
         </v-row>
+        </v-radio-group>
         <v-row
         >
           <v-col
@@ -147,6 +193,7 @@
           </v-col>
           <v-spacer></v-spacer>
         </v-row>
+        </template>
         <v-row
           v-if="editing"
         >
@@ -216,7 +263,9 @@ export default {
           "",
           ""
         ],
-        correctAnswer: 0
+        correctAnswer: 0,
+        questionType: "Quiz"
+        // if false, question is poll
       },
       savedQuestion: {},
       questionId: "",
@@ -228,34 +277,49 @@ export default {
       deleteModal: false
     }
   },
-  watch: {
-    question: {
-      handler() {
-        this.loadQuestionProp();
-      },
-      deep: true
-    }
-  },
+  // watch: {
+  //   question: {
+  //     handler() {
+  //       this.loadQuestionProp();
+  //     },
+  //     deep: true
+  //   }
+  // },
   created() {
+    bus.$on('changed-order', this.loadQuestionProp);
     this.loadQuestionProp();
   },
   computed: {
+    isQuiz() {
+      return this.questionForm.questionType == "Quiz";
+    },
     questionValid() {
-      let optionsValid = true;
-      for(let i = 0; i < this.questionForm.answerOptions.length; i++) {
-        if(this.questionForm.answerOptions[i].replaceAll(" ", "") == "") optionsValid = false;
-      }
+      const bodyNotEmpty = this.questionForm.questionBody.replaceAll(" ", "") != "";
 
-      const questionsNotEmpty = this.questionForm.questionBody.replaceAll(" ", "") != ""
+      if(this.questionForm.questionType == "Poll") {
+        if(this.savedQuestion.questionType == "Quiz" && bodyNotEmpty) return true;
+
+        return bodyNotEmpty && this.questionForm.questionBody != this.savedQuestion.questionBody;
+      } else {
+
+        let optionsValid = true;
+        for(let i = 0; i < this.questionForm.answerOptions.length; i++) {
+          if(this.questionForm.answerOptions[i].replaceAll(" ", "") == "") optionsValid = false;
+        }
+
+        const questionsNotEmpty = bodyNotEmpty
           && this.questionForm.answerOptions.length >= 2
           && optionsValid
           && this.questionForm.correctAnswer >= 0 && this.questionForm.correctAnswer < this.questionForm.answerOptions.length;
 
-      if(!this.question) {
-        // validate editor form
-        return questionsNotEmpty;
-      }
-      else {
+
+        if(this.savedQuestion.questionType == "Poll") {
+          return bodyNotEmpty && questionsNotEmpty;
+        }
+        // if using the question editor, only check that all fields are filled
+        if(!this.question) return questionsNotEmpty;
+
+        // otherwise, ensure at least one of the fields is different
         let optionsDifferent = false;
         for(let i = 0; i < this.questionForm.answerOptions.length; i++) {
           if(this.questionForm.answerOptions[i] != this.savedQuestion.answerOptions[i]) optionsDifferent = true;
@@ -268,7 +332,6 @@ export default {
       }
     },
     showBtnText() {
-      console.log(this.$vuetify.breakpoint.name);
       return this.$vuetify.breakpoint.name != 'sm' && this.$vuetify.breakpoint.name != 'xs'
     }
   },
@@ -276,7 +339,6 @@ export default {
     loadQuestionProp() {
       // if question provided, 
       if(this.question != undefined) {
-        console.log("RELOADING QUESTION PROP")
         this.questionForm.questionBody = this.question.questionBody;
 
         this.questionForm.answerOptions = []
@@ -285,10 +347,22 @@ export default {
           this.questionForm.answerOptions.push(option.answerBody);
         }
 
+        if(this.question.questionType == "Poll") {
+          this.questionForm.answerOptions = [
+            "",
+            ""
+          ]
+          this.questionForm.correctAnswer = 0;
+        }
+
         this.questionForm.correctAnswer = this.question.answerNumber;
         this.editing = false;
 
         this.questionId = this.question._id;
+
+        if(this.question.questionType != undefined) {
+          this.questionForm.questionType = this.question.questionType;
+        }
 
         this.saveCurrentQuestion();
       }
@@ -351,10 +425,12 @@ export default {
           });
         }
 
+
         const reqBody = {
           questionBody: this.questionForm.questionBody,
           answerOptions: reqAnswerOptions,
-          answerNumber: this.questionForm.correctAnswer
+          answerNumber: this.questionForm.correctAnswer,
+          questionType: this.questionForm.questionType
         };
 
         return this.$http.post("http://localhost:3030/questions/add", reqBody, {
@@ -364,6 +440,8 @@ export default {
           this.alertType = "success"
           this.editorStatus = "Question added!"
           this.resetForm();
+          console.log("EMITTING ADDED EVENT")
+          bus.$emit('added-question');
         }).catch(e => {
           console.log(e);
           this.alertType = "error"
@@ -387,7 +465,8 @@ export default {
         questionId: this.questionId,
         questionBody: this.questionForm.questionBody,
         answerOptions: reqAnswerOptions,
-        answerNumber: this.questionForm.correctAnswer
+        answerNumber: this.questionForm.correctAnswer,
+        questionType: this.questionForm.questionType
       };
 
       return this.$http.post("http://localhost:3030/questions/update", reqBody, {
@@ -412,10 +491,6 @@ export default {
         this.submittingQuestion = false;
       });
     }
-    // getQuestions(startNum, amt) {
-    //   // add fetched questions to array
-
-    // }
   }
 }
 </script>
@@ -424,5 +499,13 @@ export default {
 <style scoped lang="scss">
   .q-body {
     font-size: 130%;
+  }
+
+  .drag-handle {
+    user-select: no-select;
+
+    &:hover {
+      cursor: row-resize;
+    }
   }
 </style>

@@ -29,7 +29,7 @@
             cols="auto"
             class="drag-handle"
           >
-            <h3>{{ this.question != undefined ? this.question.orderNum+1 : "" }}</h3>
+            <h3>{{ this.question != undefined && this.questionIndex != undefined ? this.questionIndex+1 : "" }}</h3>
             <v-icon>
               mdi-arrow-split-horizontal
             </v-icon>
@@ -251,7 +251,8 @@ import { bus } from '@/main';
 export default {
   name: 'QuestionEditor',
   props: {
-    question: Object
+    question: Object,
+    questionIndex: Number
   },
   data() {
     return {
@@ -277,16 +278,16 @@ export default {
       deleteModal: false
     }
   },
-  // watch: {
-  //   question: {
-  //     handler() {
-  //       this.loadQuestionProp();
-  //     },
-  //     deep: true
-  //   }
-  // },
+  watch: {
+    question: {
+      handler() {
+        this.loadQuestionProp();
+      },
+      deep: true
+    }
+  },
   created() {
-    bus.$on('changed-order', this.loadQuestionProp);
+    // bus.$on('changed-order', this.loadQuestionProp);
     this.loadQuestionProp();
   },
   computed: {

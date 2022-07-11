@@ -49,21 +49,24 @@
             <h2>Questions</h2>
           </v-expansion-panel-header>
           <v-expansion-panel-content>
-            <draggable
+            <Container
               :list="questions"
-              @change="onChange"
-              handle=".drag-handle"
+              @drop="onChange"
+              drag-handle-selector=".drag-handle"
             >
-              <v-card
+              <Draggable
                 v-for="(question, index) in questions"
                 :key="index"
                 class="mb-4"
               >
-                <QuestionEditor 
-                  :question="question"
-                ></QuestionEditor>
-              </v-card>
-            </draggable>
+                <v-card>
+                  <QuestionEditor 
+                    :questionIndex="index"
+                    :question="question"
+                  ></QuestionEditor>
+                </v-card>
+              </Draggable>>
+            </Container>
           </v-expansion-panel-content>
         </v-expansion-panel>
       </v-expansion-panels>
@@ -80,11 +83,15 @@ import QuestionEditor from '@/components/QuestionEditor.vue'
 import draggable from 'vuedraggable'
 import { bus } from '@/main';
 
+import { Container, Draggable } from "vue-smooth-dnd";
+
 export default {
   name: 'AdminView',
   components: {
     QuestionEditor,
-    draggable
+    draggable,
+    Container,
+    Draggable
   },
   
   data() {
@@ -125,59 +132,50 @@ export default {
         console.log(err);
       });
     },
-    async onChange({ moved }) {
-      console.log("changed")
-      const movedQuestion = this.questions[moved.newIndex];
+    async onChange(moved) {
+      const newIndex = moved.addedIndex;
+      const oldIndex = moved.removedIndex;
+
+      const movedQuestion = this.questions[oldIndex];
+
+      this.arrayMove(this.questions, oldIndex, newIndex);
 
       const reqBody = {
         questionId: movedQuestion._id,
-        newOrderNum: moved.newIndex,
+        newOrderNum: newIndex,
       };
 
       await this.$http.post("http://localhost:3030/questions/order", reqBody, {
         headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` }
+      }).then(res => {
+        console.log(res);
       }).catch(e => {
         console.log(e);
       });
-
-      console.log("refetching questions");
-      this.$http.get(`http://localhost:3030/questions/get/${0}/${this.questions.length}`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` }
-      }).then(res => {
-        console.log("Received questions");
-        console.log(res);
-
-        const newQuestions = [];
-        for(let i = 0; i < res.data.questions.length; i++) {
-          const q = res.data.questions[i];
-          newQuestions.push({
-            _id: q._id,
-            orderNum: q.orderNum,
-            questionBody: q.questionBody,
-            answerOptions: q.answerOptions,
-            answerNumber: q.answerNumber
-          });
-        }
-        this.questions = [];
-        this.questions = newQuestions;
-        bus.$emit('changed-order')
-      }).catch(err => {
-        console.log(err);
-      });
-    }
+    },
+    // Utility function sourced from https://stackoverflow.com/questions/5306680/move-an-array-element-from-one-array-position-to-another
+    arrayMove(arr, old_index, new_index) {
+      if (new_index >= arr.length) {
+          var k = new_index - arr.length + 1;
+          while (k--) {
+              arr.push(undefined);
+          }
+      }
+      arr.splice(new_index, 0, arr.splice(old_index, 1)[0]);
+      return arr; // for testing
+    },
   },
   created() {
     this.getQuestions(0, 10);
     bus.$on('delete-question', (qIndex) => {
       const qCount = this.questions.length - (qIndex + 1);
 
-      this.questions = this.questions.slice(0, qIndex);
+      this.questions.splice(qIndex, 1);
       console.log("qCount: " + qCount)
 
-      this.getQuestions(qIndex, qCount);
+      // this.getQuestions(qIndex, qCount);
     });
     bus.$on('added-question', () => {
-      console.log("Question added!!!!!")
       this.getQuestions(this.questions.length, 1);
     });
   },

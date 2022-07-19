@@ -1,9 +1,10 @@
 <template>
   <div class="profile">
     <v-container>
-      <v-row>
-        <v-spacer></v-spacer>
-        <v-col cols="11" md="10" lg="6">
+      <v-row
+        justify="center"
+      >
+        <v-col cols="11" md="8" lg="6">
           <v-card
             class="profile-card"
           >
@@ -67,10 +68,71 @@
           </v-form>
           </v-card>
         </v-col>
-        <v-spacer></v-spacer>
+        <v-col
+          cols="11"
+          md="4"
+          lg="3"
+        >
+          <v-card>
+            <v-container>
+              <v-row>
+                <v-spacer></v-spacer>
+                <v-col 
+                  cols="auto"
+                >
+                  <!-- <div style="
+                    height: 100%;
+                    width: 100%;
+                  "
+                    class="d-flex justify-end"
+                  > -->
+                  <!-- <div
+                    style="
+                      width: 100%;
+                      height: 100%;
+                    "
+                  > -->
+                  <div
+                    class="d-flex justify-end"
+                    absolute
+                  >
+                    <v-btn
+                      fab
+                      small
+                      absolute
+                      elevation="0"
+                      :loading="isSelecting" 
+                      @click="handleFileImport"
+                    >
+                      <v-icon>
+                        mdi-pencil
+                      </v-icon>
+                    </v-btn>
+
+                    <input 
+                      ref="uploader" 
+                      class="d-none" 
+                      type="file" 
+                      accept=".png,.jpg,.jpeg,.heic"
+                      @change="onFileChanged"
+                    >
+                  <!-- </div> -->
+                  <v-avatar
+                    size="144"
+                    color="blue"
+                  >
+                    <span class="white--text text-h2">L</span>
+                  </v-avatar>
+                  </div>
+                </v-col>
+                <v-spacer></v-spacer>
+              </v-row>
+              <v-row></v-row>
+            </v-container>
+          </v-card>
+        </v-col>
       </v-row>
     </v-container>
-    
   </div>
 </template>
 
@@ -100,7 +162,10 @@ export default {
       },
       infoChanged: false,
       infoValid: false,
-      sendingUpdate: false
+      sendingUpdate: false,
+
+      isSelecting: false,
+      selectedFile: null
     }
   },
   methods: {
@@ -139,7 +204,41 @@ export default {
           this.origInfo.displayName != this.profileInfo.displayName ||
           this.origInfo.email != this.profileInfo.email ||
           this.origInfo.username != this.profileInfo.username
-    }
+    },
+    handleFileImport() {
+      this.isSelecting = true;
+
+      // After obtaining the focus when closing the FilePicker, return the button state to normal
+      
+      // Trigger click on the FileInput
+      this.$refs.uploader.click();
+    },
+    async onFileChanged(e) {
+      this.selectedFile = e.target.files[0];
+
+      // Send file to backend
+      const formData = new FormData();
+      console.log(this.selectedFile.name)
+      formData.append('file', this.selectedFile, this.selectedFile.name);
+
+      for(const value of formData.values()) {
+        console.log(value)
+      }
+
+      try {
+        await this.$http.post("http://localhost:3030/user/updatepfp", {}, {
+          data: formData,
+          headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` }
+        }).then(res => {
+          console.log(res);
+        }).finally(() => {
+          this.isSelecting = false;
+        });
+      } catch (err) {
+        console.log(err)
+        this.isSelecting = false;
+      }
+    },
   },
   created() {
     const storageJSON = localStorage.getItem("userInfo");

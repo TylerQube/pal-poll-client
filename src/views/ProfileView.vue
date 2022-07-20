@@ -116,18 +116,35 @@
                       accept=".png,.jpg,.jpeg,.heic"
                       @change="onFileChanged"
                     >
-                  <!-- </div> -->
-                  <v-avatar
-                    size="144"
-                    color="blue"
-                  >
-                    <span class="white--text text-h2">L</span>
-                  </v-avatar>
+                    <v-avatar
+                      size="144"
+                      color="white"
+                    >
+                      <v-icon
+                        v-if="this.avatarUrl == null"
+                      >
+                          mdi-file-document-alert
+                      </v-icon>
+                      <img v-else :src="this.avatarUrl"/>
+                    </v-avatar>
                   </div>
                 </v-col>
                 <v-spacer></v-spacer>
               </v-row>
-              <v-row></v-row>
+              <v-row>
+                <v-spacer></v-spacer>
+                <v-col cols="auto">
+                  <v-spacer></v-spacer>
+                  <v-alert
+                  dense
+                  v-if="avatarStatus != ''"
+                  :type="alertType"
+                  >
+                    {{ avatarStatus }}
+                  </v-alert>
+                </v-col>
+                <v-spacer></v-spacer>
+              </v-row>
             </v-container>
           </v-card>
         </v-col>
@@ -139,6 +156,7 @@
 <script>
 // @ is an alias to /src
 import { bus } from '@/main';
+import FormData from 'form-data';
 
 export default {
   name: 'ProfileView',
@@ -165,7 +183,12 @@ export default {
       sendingUpdate: false,
 
       isSelecting: false,
-      selectedFile: null
+      selectedFile: null,
+
+      avatarStatus: "",
+      alertType: "success",
+
+      avatarUrl: null
     }
   },
   methods: {
@@ -206,7 +229,6 @@ export default {
           this.origInfo.username != this.profileInfo.username
     },
     handleFileImport() {
-      this.isSelecting = true;
 
       // After obtaining the focus when closing the FilePicker, return the button state to normal
       
@@ -214,30 +236,50 @@ export default {
       this.$refs.uploader.click();
     },
     async onFileChanged(e) {
+      this.isSelecting = true;
       this.selectedFile = e.target.files[0];
 
       // Send file to backend
       const formData = new FormData();
       console.log(this.selectedFile.name)
-      formData.append('file', this.selectedFile, this.selectedFile.name);
+      formData.append('avatar', this.selectedFile, this.selectedFile.name);
 
       for(const value of formData.values()) {
         console.log(value)
       }
 
       try {
-        await this.$http.post("http://localhost:3030/user/updatepfp", {}, {
-          data: formData,
-          headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` }
-        }).then(res => {
-          console.log(res);
+        await this.$http.post("http://localhost:3030/user/updatepfp", formData, 
+        {
+          headers: { 
+            Authorization: `Bearer ${localStorage.getItem("jwt")}` ,
+            'Content-Type': 'multipart/form-data'
+          }
+        }).then(() => {
+          this.alertType = "success";
+          this.avatarStatus = "Updated!";
+          setTimeout(() => {
+            this.avatarStatus = ""
+          }, 3000);
+          console.log("fetching avatar")
+          this.fetchAvatar();
         }).finally(() => {
           this.isSelecting = false;
         });
       } catch (err) {
+          this.alertType = "error";
+          this.avatarStatus = "Something went wrong";
+          setTimeout(() => {
+            this.avatarStatus = ""
+          }, 3000);
         console.log(err)
         this.isSelecting = false;
       }
+    },
+    async fetchAvatar() {
+      const res = await this.$http.get(`http://localhost:3030/user/avatar?username=${this.profileInfo.username}`);
+      console.log(res);
+      this.avatarUrl = res.data;
     },
   },
   created() {
@@ -248,6 +290,7 @@ export default {
     this.profileInfo.username = localUserInfo.name;
 
     this.refreshOrigInfo();
+    this.fetchAvatar();
   },
   watch: {
     profileInfo: {

@@ -7,7 +7,27 @@
         <v-spacer></v-spacer>
         <v-toolbar-title class="toolbar-text" v-if="this.userInfo != null && this.userInfo.displayName != null">Hi, {{ this.userInfo.displayName }}!</v-toolbar-title>
         <v-btn v-if="this.token == null && this.$route.name != 'login'" class="primary"><router-link to="/login">Login</router-link></v-btn>
-        <v-btn v-if="this.token != null" @click="loginModal = true" class="primary">Logout</v-btn>
+        <v-menu offset-y v-if="this.token != null">
+          <template v-slot:activator="{ on, attrs }">
+            <div v-bind="attrs" v-on="on">
+              <v-avatar
+                size="48"
+                color="white"
+              >
+                <img v-if="avatarUrl != ''" :src="avatarUrl"/>
+                <v-icon
+                  v-else
+                >
+                    mdi-file-document-alert
+                </v-icon>
+              </v-avatar>
+            </div>
+          </template>
+          <v-list class="py-0">
+            <v-list-item class="px-6"><router-link class="router-link" to="/profile">Profile</router-link></v-list-item>
+            <v-list-item class="px-6" @click="loginModal = true">Logout</v-list-item>
+          </v-list>
+        </v-menu>
         <v-dialog
           v-model="loginModal"
           :v-if="this.token != null"
@@ -47,7 +67,9 @@ export default {
       token: null,
       loginModal: false,
       displayName: null,
-      userInfo: null
+      userInfo: null,
+      avatarUrl: "",
+      showMenu: false
     }
   },
   methods: {
@@ -56,6 +78,7 @@ export default {
       this.token = null;
       localStorage.removeItem("jwt");
       this.userInfo = null;
+      this.avatarUrl = null;
       this.$router.push("/login");
     },
     async getUserInfo() {
@@ -70,7 +93,13 @@ export default {
         }).finally(() => {
           this.loggingIn = false;
         });
-    }
+    },
+    async fetchAvatar() {
+      const res = await this.$http.get(`http://localhost:3030/user/avatar?username=${this.userInfo.name}`);
+      console.log(res);
+      console.log("Updating url")
+      this.avatarUrl = res.data;
+    },
   },
   computed: {
     showLoginBtn() {
@@ -94,18 +123,21 @@ export default {
   created() {
     this.$vuetify.theme.light = true 
     // receive JWT from PollLogin event
-    bus.$on('new-token', (newToken) => {
+    bus.$on('new-token', async (newToken) => {
       this.token = newToken;
       localStorage.setItem("jwt", newToken);
-      this.getUserInfo();
+      await this.getUserInfo();
+      this.fetchAvatar();
     });
 
     bus.$on('logged-in', () => {
       this.$router.push("/");
     });
 
-    bus.$on('user-updated', () => {
-      this.getUserInfo();
+    bus.$on('user-updated', async () => {
+      await this.getUserInfo();
+      console.log("user updated avatar!")
+      this.fetchAvatar();
     });
 
     const localToken = localStorage.getItem("jwt");
@@ -118,8 +150,8 @@ export default {
     const localUserInfo = JSON.parse(localStorage.getItem("userInfo"));
     if(this.userInfo == null) this.userInfo = localUserInfo;
 
-    
-  }
+    if(this.userInfo != null) this.fetchAvatar();
+  },
 }
 </script>
 
@@ -145,5 +177,10 @@ nav {
 
 .toolbar-text {
   margin: auto 1em;
+}
+
+.router-link {
+  text-decoration: none;
+  color: black !important;
 }
 </style>

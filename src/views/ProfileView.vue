@@ -263,6 +263,7 @@ export default {
           }, 3000);
           console.log("fetching avatar")
           this.fetchAvatar();
+          bus.$emit("user-updated");
         }).finally(() => {
           this.isSelecting = false;
         });

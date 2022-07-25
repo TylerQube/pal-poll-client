@@ -4,10 +4,19 @@
   <div id="app">
     <nav>
       <v-app-bar>
+        <div>
+          <h1><router-link to="/" class="router-link">PalPoll</router-link></h1>
+        </div>
+        <div v-if="!isMobile">
+          <v-btn plain to="" large>Play</v-btn>
+          <v-btn plain to="" large>Stats</v-btn>
+          <v-btn plain to="/admin" large>Admin</v-btn>
+
+        </div>
         <v-spacer></v-spacer>
         <v-toolbar-title class="toolbar-text" v-if="this.userInfo != null && this.userInfo.displayName != null">Hi, {{ this.userInfo.displayName }}!</v-toolbar-title>
         <v-btn v-if="this.token == null && this.$route.name != 'login'" class="primary"><router-link to="/login">Login</router-link></v-btn>
-        <v-menu offset-y v-if="this.token != null">
+        <v-menu offset-y v-if="this.token != null && !isMobile">
           <template v-slot:activator="{ on, attrs }">
             <div v-bind="attrs" v-on="on">
               <v-avatar
@@ -24,10 +33,11 @@
             </div>
           </template>
           <v-list class="py-0">
-            <v-list-item class="px-6"><router-link class="router-link" to="/profile">Profile</router-link></v-list-item>
+            <v-list-item class="px-6" to="/profile">Profile</v-list-item>
             <v-list-item class="px-6" @click="loginModal = true">Logout</v-list-item>
           </v-list>
         </v-menu>
+        <v-app-bar-nav-icon class="ml-1" large v-if="isMobile && this.token != null" @click.stop="showDrawer = !showDrawer"></v-app-bar-nav-icon>
         <v-dialog
           v-model="loginModal"
           :v-if="this.token != null"
@@ -51,9 +61,73 @@
         </v-dialog>
       </v-app-bar>
     </nav>
-    <!-- <p>Logged In: {{ this.token != null }}</p>
-    <p>Show login btn: {{ this.showLoginBtn }}</p> -->
     <router-view/>
+    <v-navigation-drawer
+      v-model="showDrawer"
+      v-if="isMobile"
+      temporary
+      right
+      app
+    >
+      <div
+        class="d-flex flex-column justify-space-between"
+        style="height: 100%"
+      >
+        <v-container class="pa-0" >
+          <v-row class="pa-2">
+            <v-spacer></v-spacer>
+            <v-col cols="auto">
+              <v-avatar
+                  size="48"
+                  color="white"
+              >
+                <img v-if="avatarUrl != ''" :src="avatarUrl"/>
+                <v-icon
+                  v-else
+                >
+                    mdi-file-document-alert
+                </v-icon>
+              </v-avatar>
+            </v-col>
+            <v-col cols="8" class="d-flex flex-row align-center">
+              <h3 v-if="this.userInfo != null && this.userInfo.displayName" class="text-truncate">{{ userInfo.displayName }}</h3>
+            </v-col>
+            <v-spacer></v-spacer>
+          </v-row>
+          <v-row no-gutters>
+            <v-col>
+              <v-list>
+                <v-list-item-group
+                  color="primary"
+                >
+                  <v-list-item
+                    v-for="(item, i) in navItems"
+                    :key="i"
+                    :to="item.path"
+                  >
+                    <v-list-item-icon>
+                      <v-icon v-text="item.icon"></v-icon>
+                    </v-list-item-icon>
+                    <v-list-item-content>
+                      <v-list-item-title v-text="item.text"></v-list-item-title>
+                    </v-list-item-content>
+                  </v-list-item>
+                </v-list-item-group>
+              </v-list>
+            </v-col>
+          </v-row>
+        </v-container>
+        <v-container>
+          <v-row align="end">
+            <v-spacer></v-spacer>
+            <v-col>
+              <v-btn large color="error" @click="loginModal = true">Logout</v-btn>
+            </v-col>
+          </v-row>
+        </v-container>
+      </div>
+        
+    </v-navigation-drawer>
   </div>
   </v-app>
 </template>
@@ -69,7 +143,15 @@ export default {
       displayName: null,
       userInfo: null,
       avatarUrl: "",
-      showMenu: false
+      showMenu: false,
+      showDrawer: false,
+
+      navItems: [
+        { text: 'Home', icon: 'mdi-home', path: "/" },
+        { text: 'Play', icon: 'mdi-chat-question', path: "/play" },
+        { text: 'Stats', icon: 'mdi-chart-bar', path: "/stats" },
+        { text: 'Profile', icon: 'mdi-account', path: "/profile" },
+      ],
     }
   },
   methods: {
@@ -105,6 +187,9 @@ export default {
     showLoginBtn() {
       return this.token == null
     },
+    isMobile() {
+      return this.$vuetify.breakpoint.name == 'sm' || this.$vuetify.breakpoint.name == 'xs'; 
+    }
   },
   watch: {
     token(newToken) {

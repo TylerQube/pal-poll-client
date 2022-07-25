@@ -3,15 +3,34 @@
   <v-app>
   <div id="app">
     <nav>
-      <v-app-bar>
+      <v-app-bar >
         <div>
           <h1><router-link to="/" class="router-link">PalPoll</router-link></h1>
         </div>
-        <div v-if="!isMobile">
-          <v-btn plain to="" large>Play</v-btn>
-          <v-btn plain to="" large>Stats</v-btn>
-          <v-btn plain to="/admin" large>Admin</v-btn>
-
+        <div v-if="!isMobile" style="height:100%">
+          <v-list
+            class="pa-0 pl-4"
+            style="background-color: transparent; height: 100%;"
+          >
+            <v-list-item-group
+              color="primary"
+              class="d-flex flex-row"
+              style="height:100%"
+            >
+              <v-list-item
+                v-for="(item, i) in navBarItems"
+                :key="i"
+                :to="item.path"
+              >
+                <v-list-item-icon class="mr-3 my-auto">
+                  <v-icon v-text="item.icon"></v-icon>
+                </v-list-item-icon>
+                <v-list-item-content>
+                  <v-list-item-title v-text="item.text"></v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+            </v-list-item-group>
+          </v-list>
         </div>
         <v-spacer></v-spacer>
         <v-toolbar-title class="toolbar-text" v-if="this.userInfo != null && this.userInfo.displayName != null">Hi, {{ this.userInfo.displayName }}!</v-toolbar-title>
@@ -73,7 +92,7 @@
         class="d-flex flex-column justify-space-between"
         style="height: 100%"
       >
-        <v-container class="pa-0" >
+        <v-container class="pa-0 pt-2" >
           <v-row class="pa-2">
             <v-spacer></v-spacer>
             <v-col cols="auto">
@@ -178,8 +197,6 @@ export default {
     },
     async fetchAvatar() {
       const res = await this.$http.get(`http://localhost:3030/user/avatar?username=${this.userInfo.name}`);
-      console.log(res);
-      console.log("Updating url")
       this.avatarUrl = res.data;
     },
   },
@@ -189,6 +206,9 @@ export default {
     },
     isMobile() {
       return this.$vuetify.breakpoint.name == 'sm' || this.$vuetify.breakpoint.name == 'xs'; 
+    },
+    navBarItems() {
+      return this.navItems.filter(i => i.text != "Home");
     }
   },
   watch: {
@@ -241,6 +261,11 @@ export default {
 </script>
 
 <style lang="scss">
+
+::v-deep .v-toolbar__content {
+  padding: 0px !important;
+}
+
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;

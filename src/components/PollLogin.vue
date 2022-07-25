@@ -1,6 +1,5 @@
 <template>
   <div class="container">
-    <p>pg50n3CM08N2</p>
     <p class="login-header">Login</p>
       <v-form>
         <v-text-field 

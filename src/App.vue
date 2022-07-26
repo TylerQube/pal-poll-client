@@ -2,8 +2,8 @@
 <template>
   <v-app>
   <div id="app">
-    <nav>
-      <v-app-bar >
+    <Particles id="tsparticles" :particlesInit="particlesInit" :options="options"/>
+      <v-app-bar ref="navbar" height="60px">
         <div>
           <h1><router-link to="/" class="router-link">PalPoll</router-link></h1>
         </div>
@@ -79,7 +79,6 @@
           </v-card>
         </v-dialog>
       </v-app-bar>
-    </nav>
     <router-view/>
     <v-navigation-drawer
       v-model="showDrawer"
@@ -115,12 +114,13 @@
           </v-row>
           <v-row no-gutters>
             <v-col>
+              <h3 v-if="!finishedTutorial" style="max-width: 80%;">Read the homepage to unlock the game!</h3>
               <v-list>
                 <v-list-item-group
                   color="primary"
                 >
                   <v-list-item
-                    v-for="(item, i) in navItems"
+                    v-for="(item, i) in navBarItems"
                     :key="i"
                     :to="item.path"
                   >
@@ -153,6 +153,7 @@
 
 <script>
 import { bus } from './main'
+import { loadFull } from "tsparticles"
 
 export default {
   data() {
@@ -165,21 +166,32 @@ export default {
       showMenu: false,
       showDrawer: false,
 
+      isAdmin: false,
+
+      finishedTutorial: false,
+
       navItems: [
         { text: 'Home', icon: 'mdi-home', path: "/" },
         { text: 'Play', icon: 'mdi-chat-question', path: "/play" },
         { text: 'Stats', icon: 'mdi-chart-bar', path: "/stats" },
         { text: 'Profile', icon: 'mdi-account', path: "/profile" },
+        { text: 'Admin', icon: 'mdi-lock', path: "/admin" },
       ],
+      options: {"background":{"color":{"value":"#0d47a1"},"image":"linear-gradient(135deg, hsla(331, 78%, 69%, 1) 0%, hsla(238, 82%, 70%, 1) 100%)"},"particles":{"number":{"value":80,"density":{"enable":false}},"size":{"value":3,"random":true,"anim":{"speed":4,"size_min":0.3}},"links":{"enable":false},"move":{"random":true,"speed":1,"direction":"top","out_mode":"out"}},"interactivity":{"events":{"onhover":{"enable":true,"mode":"bubble"},"onclick":{"enable":true,"mode":"repulse"}},"modes":{"bubble":{"distance":250,"duration":2,"size":0,"opacity":0},"repulse":{"distance":400,"duration":4}}}}
     }
   },
   methods: {
+    async particlesInit(engine) {
+      await loadFull(engine);
+      console.log("loaded")
+    },
     logout() {
       // wipe JWT, redirect to login
       this.token = null;
       localStorage.removeItem("jwt");
       this.userInfo = null;
       this.avatarUrl = null;
+      this.finishedTutorial = null;
       this.$router.push("/login");
     },
     async getUserInfo() {
@@ -199,6 +211,12 @@ export default {
       const res = await this.$http.get(`http://localhost:3030/user/avatar?username=${this.userInfo.name}`);
       this.avatarUrl = res.data;
     },
+    async checkAdmin() {
+      const res = await fetch("http://localhost:3030/user/adminAuth", {
+        headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` }
+      });
+      this.isAdmin = res.status == 200;
+    }
   },
   computed: {
     showLoginBtn() {
@@ -208,8 +226,12 @@ export default {
       return this.$vuetify.breakpoint.name == 'sm' || this.$vuetify.breakpoint.name == 'xs'; 
     },
     navBarItems() {
-      return this.navItems.filter(i => i.text != "Home");
-    }
+      if(!this.finishedTutorial) return [];
+      
+      let filtered = this.navItems.filter(i => i.text != "Home");
+      if(!this.isAdmin) filtered = filtered.filter(i => i.text != "Admin");
+      return filtered;
+    },
   },
   watch: {
     token(newToken) {
@@ -223,6 +245,10 @@ export default {
     userInfo(newInfo) {
       localStorage.setItem("userInfo", JSON.stringify(newInfo));
       if(newInfo == null) localStorage.removeItem("userInfo");
+    },
+    finishedTutorial(val) {
+      localStorage.setItem("finishedTutorial", JSON.stringify(val));
+      if(val == null) localStorage.removeItem("finishedTutorial");
     }
   },
   created() {
@@ -233,6 +259,7 @@ export default {
       localStorage.setItem("jwt", newToken);
       await this.getUserInfo();
       this.fetchAvatar();
+      this.checkAdmin();
     });
 
     bus.$on('logged-in', () => {
@@ -255,8 +282,23 @@ export default {
     const localUserInfo = JSON.parse(localStorage.getItem("userInfo"));
     if(this.userInfo == null) this.userInfo = localUserInfo;
 
+    window.onscroll = () => {
+      // unlock nav bar and play button when user scrolls to bottom of homepage
+      if((window.outerHeight + window.innerHeight) - window.scrollY <= 400 && this.$route.name == "home") {
+        this.finishedTutorial = true;
+        bus.$emit("finished-tutorial");
+        console.log("Unlocked page!");
+      }
+    };
+
+    this.finishedTutorial = localStorage.getItem("finishedTutorial")
+
     if(this.userInfo != null) this.fetchAvatar();
+    this.checkAdmin();
   },
+  mounted() {
+    console.log("height: " + this.$refs.navbar.height)
+  }
 }
 </script>
 
@@ -266,12 +308,22 @@ export default {
   padding: 0px !important;
 }
 
+// @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@500&display=swap');
+
+html, body {
+  height: 100%;
+  width: 100%;
+}
+
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
+  // font-family: Avenir, Helvetica, Arial, sans-serif;
+  // font-family: 'Nunito', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
+
+  height: 100%;
 }
 
 nav {

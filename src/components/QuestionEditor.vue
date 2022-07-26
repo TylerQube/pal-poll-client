@@ -49,7 +49,7 @@
           <v-col
             cols="auto"
             md="8"
-            lg="9"
+            lg="8"
             class="d-flex flex-row align-center"
           >
             <p

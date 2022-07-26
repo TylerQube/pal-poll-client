@@ -51,6 +51,16 @@ $btn-hover: #ffc16f;
     transform: skewX(-15deg);
 }
 
+.cta:not(:hover) {
+    animation: 2s ease-in-out infinite notHover;
+}
+
+@keyframes notHover { 
+    0% { box-shadow: 4px 4px 0 $btn-base; }
+    50% { box-shadow: 10px 8px 0 $btn-base; transform: skewX(-15deg); }
+    100% { box-shadow: 4px 4px 0 $btn-base; }
+}
+
 .cta:focus {
    outline: none; 
 }

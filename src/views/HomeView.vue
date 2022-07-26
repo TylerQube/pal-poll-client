@@ -1,6 +1,6 @@
 <template>
   <div class="home" height="calc(100vh - 60px)">
-    <v-card class="transparent first-full big-heading">
+    <v-card id="section-1" class="transparent first-full big-heading">
     <v-container class="full-div d-flex flex-column justify-space-between">
       <v-row></v-row>
       <v-row>
@@ -24,7 +24,7 @@
       <!-- https://csshint.com/html-css-scroll-down-arrow-examples/ -->
       <v-row>
         <v-col align-self="center">
-          <svg class="arrows">
+          <svg class="arrows" @click="scrollSection(2)">
             <path class="a1" d="M0 0 L30 32 L60 0"></path>
             <path class="a2" d="M0 20 L30 52 L60 20"></path>
             <path class="a3" d="M0 40 L30 72 L60 40"></path>
@@ -33,7 +33,7 @@
       </v-row>
     </v-container>
     </v-card>
-    <v-card class="transparent full-div big-heading d-flex flex-column align-center justify-center">
+    <v-card id="section-2" class="transparent full-div big-heading d-flex flex-column align-center justify-center">
       <v-container class="full-div d-flex flex-column justify-space-between">
         <v-row></v-row>
         <v-container>
@@ -73,7 +73,7 @@
         <!-- https://csshint.com/html-css-scroll-down-arrow-examples/ -->
         <v-row>
           <v-col align-self="center">
-            <svg class="arrows">
+            <svg class="arrows" @click="scrollSection(3)">
               <path class="a1" d="M0 0 L30 32 L60 0"></path>
               <path class="a2" d="M0 20 L30 52 L60 20"></path>
               <path class="a3" d="M0 40 L30 72 L60 40"></path>
@@ -82,7 +82,7 @@
         </v-row>
       </v-container>
     </v-card>
-    <v-card class="transparent full-div big-heading d-flex flex-column align-center justify-center">
+    <v-card id="section-3" class="transparent full-div big-heading d-flex flex-column align-center justify-center">
       <h6 
         :class="flavorTextClasslist"
       >Play each day to learn more about your friends and fight to become:</h6>
@@ -113,6 +113,17 @@ export default {
   data() {
     return {
       finishedTutorial: false,
+    }
+  },
+  methods: {
+    scrollSection(num) {
+      console.log(document.getElementById(`section-${num}`).offsetTop)
+      setTimeout(() => {
+        window.scrollTo({
+        top: document.getElementById(`section-${num}`).offsetTop,
+        behavior: 'smooth'
+      });
+      }, 2)
       
     }
   },
@@ -127,10 +138,7 @@ export default {
         text-sm-h4
         text-h4
       `;
-      console.log(this.$vuetify.breakpoint.name);
-      console.log(window.innerHeight);
       if(window.innerHeight < 700) classlist = classlist.replace('text-h4', 'text-h5');
-      console.log(classlist);
       return classlist;
     },
     imgWidth() {
@@ -195,6 +203,8 @@ export default {
     left: 50%;
     margin-left: -30px;
     bottom: 20px;
+
+    cursor: pointer;
   }
 
   .arrows path {

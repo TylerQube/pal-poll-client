@@ -17,7 +17,7 @@
           >Welcome to PalPoll</h1>
           <h5 :class="flavorTextClasslist + 'mt-5 mb-3'"
           >How well do you really know your friends?</h5>
-          <CoolButton v-if="finishedTutorial" class="mt-5" label="PLAY"></CoolButton>
+          <CoolButton @click.native="$router.push('/play')" v-if="finishedTutorial" class="mt-5" label="PLAY"></CoolButton>
         </v-col>
         <v-spacer></v-spacer>
       </v-row>

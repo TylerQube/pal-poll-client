@@ -1,6 +1,20 @@
 <template>
 <div class="admin">
-  <v-container>
+  <v-container style="position: relative;">
+    <v-row>
+      <v-spacer></v-spacer>
+      <v-col cols="auto">
+        <h1 class="
+          shadow 
+          font-weight-bold 
+          text-lg-h2
+          text-md-h3
+          text-sm-h4
+          text-h4
+        ">Admin Panel</h1>
+      </v-col>
+      <v-spacer></v-spacer>
+    </v-row>
     <v-row>
       <v-spacer></v-spacer>
       <v-col
@@ -9,8 +23,24 @@
           lg="8"
       >
         <v-card
+          class="color-black"
         >
-          <h1>PalPoll Global Config</h1>
+          <v-container>
+            <v-row>
+              <v-col cols="auto">
+                <h1 class="ml-4">PalPoll Global Config</h1>
+              </v-col>
+              <v-spacer></v-spacer>
+            </v-row>
+            <v-row>
+              <v-col cols="auto" class="py-0 d-flex justify-center align-center">
+                <h3>PalPoll Start Date</h3>
+              </v-col>
+              <v-col cols="auto">
+                <DatePicker></DatePicker>
+              </v-col>
+            </v-row>
+          </v-container>
         </v-card>
       </v-col>
       <v-spacer></v-spacer>
@@ -22,7 +52,7 @@
           md="10"
           lg="8"
       >
-        <v-expansion-panels :value="opened">
+        <v-expansion-panels :value="opened" class="color-black">
           <v-expansion-panel
           >
             <v-expansion-panel-header>
@@ -44,7 +74,7 @@
         lg="8"
       >
         <v-expansion-panels>
-        <v-expansion-panel>
+        <v-expansion-panel class="color-black">
           <v-expansion-panel-header>
             <h2>Questions</h2>
           </v-expansion-panel-header>
@@ -84,6 +114,7 @@ import draggable from 'vuedraggable'
 import { bus } from '@/main';
 
 import { Container, Draggable } from "vue-smooth-dnd";
+import DatePicker from "../components/DatePicker.vue";
 
 export default {
   name: 'AdminView',
@@ -91,13 +122,17 @@ export default {
     QuestionEditor,
     draggable,
     Container,
-    Draggable
-  },
+    Draggable,
+    DatePicker
+},
   
   data() {
     return {
       opened: 0,
-      questions: []
+      questions: [],
+
+      startDate: null,
+      dateMenu: false
     }
   },
   computed: {
@@ -112,7 +147,6 @@ export default {
 
         for(let i = 0; i < res.data.questions.length; i++) {
           const q = res.data.questions[i];
-
 
           let newQuestion = {
             _id: q._id,
@@ -183,4 +217,11 @@ export default {
 </script>
 
 <style scoped lang="scss">
+  .admin {
+    color: white;
+  }
+
+  .shadow {
+    text-shadow: 0.1em 0.1em rgba(58, 58, 58, 0.816);
+  }
 </style>

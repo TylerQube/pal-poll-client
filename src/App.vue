@@ -1,8 +1,9 @@
 
 <template>
   <v-app>
+  <Particles id="tsparticles" :particlesInit="particlesInit" :options="options"/>
+
   <div id="app">
-    <Particles id="tsparticles" :particlesInit="particlesInit" :options="options"/>
       <v-app-bar ref="navbar" height="60px">
         <div>
           <h1><router-link to="/" class="router-link">PalPoll</router-link></h1>
@@ -52,8 +53,9 @@
             </div>
           </template>
           <v-list class="py-0">
-            <v-list-item class="px-6" to="/profile">Profile</v-list-item>
-            <v-list-item class="px-6" @click="loginModal = true">Logout</v-list-item>
+            <v-list-item v-if="!finishedTutorial"><h3>Read the homepage to unlock the game!</h3></v-list-item>
+            <v-list-item v-if="finishedTutorial" class="px-6" to="/profile">Profile</v-list-item>
+            <v-list-item v-if="finishedTutorial" class="px-6" @click="loginModal = true">Logout</v-list-item>
           </v-list>
         </v-menu>
         <v-app-bar-nav-icon class="ml-1" large v-if="isMobile && this.token != null" @click.stop="showDrawer = !showDrawer"></v-app-bar-nav-icon>
@@ -79,7 +81,7 @@
           </v-card>
         </v-dialog>
       </v-app-bar>
-    <router-view/>
+    <router-view style="z-index: 1;"/>
     <v-navigation-drawer
       v-model="showDrawer"
       v-if="isMobile"
@@ -168,7 +170,7 @@ export default {
 
       isAdmin: false,
 
-      finishedTutorial: false,
+      finishedTutorial: localStorage.getItem("finishedTutorial"),
 
       navItems: [
         { text: 'Home', icon: 'mdi-home', path: "/" },
@@ -291,8 +293,6 @@ export default {
       }
     };
 
-    this.finishedTutorial = localStorage.getItem("finishedTutorial")
-
     if(this.userInfo != null) this.fetchAvatar();
     this.checkAdmin();
   },
@@ -308,16 +308,12 @@ export default {
   padding: 0px !important;
 }
 
-// @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@500&display=swap');
-
 html, body {
   height: 100%;
   width: 100%;
 }
 
 #app {
-  // font-family: Avenir, Helvetica, Arial, sans-serif;
-  // font-family: 'Nunito', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;

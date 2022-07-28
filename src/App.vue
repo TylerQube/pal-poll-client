@@ -22,6 +22,7 @@
                 v-for="(item, i) in navBarItems"
                 :key="i"
                 :to="item.path"
+                active-class="active-router"
               >
                 <v-list-item-icon class="mr-3 my-auto">
                   <v-icon v-text="item.icon"></v-icon>
@@ -340,5 +341,9 @@ nav {
 .router-link {
   text-decoration: none;
   color: black !important;
+}
+
+.active-router {
+  // background-color: rgba(212, 0, 255, 0.09);
 }
 </style>

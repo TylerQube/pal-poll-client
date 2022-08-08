@@ -4,6 +4,7 @@ import HomeView from '../views/HomeView.vue'
 import LoginView from '../views/LoginView.vue'
 import ProfileView from '../views/ProfileView'
 import AdminView from '../views/AdminView'
+import QuizView from '../views/QuizView'
 
 Vue.use(VueRouter)
 
@@ -35,6 +36,14 @@ const routes = [
     component: AdminView,
     meta: {
       requiresAdmin: true
+    }
+  },
+  {
+    path: '/play',
+    name: 'play',
+    component: QuizView,
+    meta: {
+      requiresAuth: true,
     }
   }
 ]

@@ -17,7 +17,19 @@
           >Welcome to PalPoll</h1>
           <h5 :class="flavorTextClasslist + 'mt-5 mb-3'"
           >How well do you really know your friends?</h5>
-          <CoolButton @click.native="$router.push('/play')" v-if="finishedTutorial" class="mt-5" label="PLAY"></CoolButton>
+          <CoolButton @click.native="$router.push('/play')" v-show="finishedTutorial" class="mt-5" label="PLAY"></CoolButton>
+          <h6 v-show="!finishedTutorial" class="
+            shadow 
+            flavor-text
+            font-weight-bold 
+            text-lg-h4
+            text-md-h6
+            text-sm-h6
+            text-h6
+            mt-5 
+            mb-3
+          "
+          >Scroll down to unlock the game!</h6>
         </v-col>
         <v-spacer></v-spacer>
       </v-row>

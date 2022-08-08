@@ -285,6 +285,7 @@ export default {
     const localUserInfo = JSON.parse(localStorage.getItem("userInfo"));
     if(this.userInfo == null) this.userInfo = localUserInfo;
 
+    console.log("setting up onscroll")
     window.onscroll = () => {
       // unlock nav bar and play button when user scrolls to bottom of homepage
       if((window.outerHeight + window.innerHeight) - window.scrollY <= 400 && this.$route.name == "home") {
@@ -305,6 +306,15 @@ export default {
 
 <style lang="scss">
 
+#tsparticles canvas {
+  overflow-x:hidden;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+
+  z-index: -1;
+}
+
 ::v-deep .v-toolbar__content {
   padding: 0px !important;
 }
@@ -320,6 +330,7 @@ html, body {
   text-align: center;
   color: #2c3e50;
 
+  z-index: 0;
   height: 100%;
 }
 

@@ -1,5 +1,5 @@
 <template>
-  <div class="d-flex flex-column justify-space-between" style="height: 100%;">
+  <div class="d-flex flex-column" style="height: 100%;">
     <v-container class="container">
     <v-row>
       <v-col cols="12" class="d-flex flex-row justify-end">
@@ -22,7 +22,7 @@
         </h1>
       </v-col>
     </v-row>
-    <v-row v-if="question.answerOptions">
+    <v-row v-if="question.answerOptions && question.answerOptions.length > 0">
       <v-container>
         <v-row class="d-flex flex-row justify-center">
           <v-col
@@ -44,29 +44,34 @@
         </v-row>
       </v-container>
     </v-row>
-    <v-row v-else>
-
+    <v-row v-if="!question.answerOptions || question.answerOptions.length == 0">
+      <v-container>
+        <v-row>
+          <v-spacer></v-spacer>
+          <v-col cols="auto">
+            <FlickityCarousel ref="carousel"></FlickityCarousel>
+          </v-col>
+          <v-spacer></v-spacer>
+        </v-row>
+      </v-container>
     </v-row>
     </v-container>
-    <v-container>
+    <v-container fill-height >
       <v-row>
-        <v-col v-if="lost">
-          <img src="../assets/esther_L.jpg" alt="L" class="icon-big"/>
-        </v-col>
-      </v-row>
-      <v-row>
-        <v-spacer></v-spacer>
-        <v-col>
+        <v-col cols="12" class="d-flex justify-center">
           <v-btn
-            v-show="selected"
-            style="color: white;"
+            v-show="selected || (question.answerOptions.length == 0)"
+            style="color: white; font-family: 'Nunito', sans-serif; font-size: 1.5rem;"
+            rounded
             color="purple"
             x-large
+            :block="this.$vuetify.breakpoint.name == 'xs'"
+            @click="endQuiz()"
+            :loading="quizEnded"
           >
             DONE!
           </v-btn>
         </v-col>
-        <v-spacer></v-spacer>
       </v-row>
     </v-container>
   </div>
@@ -75,72 +80,92 @@
 </template>
 
 <script>
-export default {
-  name: 'QuizQuestion',
-  data() {
-    return {
-      question: null,
-      selected: false,
-      curSec: 5,
-      lost: false
-    }
-  },
-  methods: {
-    getQuestion() {
-      return this.$http.get("http://localhost:3030/questions/daily", {
-        headers: { Authorization: `Bearer ${localStorage.getItem('jwt')}` }
-      }).then(res => {
-        console.log(res.data);
-        this.question = res.data.question;
-        setTimeout(() => {
-          this.countdown();
-        }, 1000);
-      }).catch(e => {
-        console.log(e);
-      }).finally(() => {
-        
-      });
-    },
-    countdown() {
-      const countdown = setInterval(() => {
-        this.curSec--;
-        document.getElementById('stopwatch').classList.add('pulse');
-        setTimeout(() => {
-          document.getElementById('stopwatch').classList.remove('pulse')
-        }, 300);
-        if(this.curSec == 0) { clearInterval(countdown); this.lost=true; }
+import { bus } from '../main';
+import FlickityCarousel from './FlickityCarousel.vue';
 
-      }, 1000);
+export default {
+    name: "QuizQuestion",
+    data() {
+        return {
+            question: null,
+            selected: false,
+            curSec: 60,
+            lost: false,
+            stopwatchInterval: null,
+
+            quizEnded: false
+        };
     },
-  },
-  computed: {
-    stopwatchSize() {
-      switch(this.$vuetify.breakpoint.name) {
-        case 'lg':
-        case 'xl':
-          return '6em';
-        case 'md':
-          return '4em';
-        case 'sm':
-        case 'xs':
-        default:
-          return '3.5em';
-      }
+    methods: {
+        getQuestion() {
+            return this.$http.get("http://localhost:3030/questions/daily", {
+                headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` }
+            }).then(res => {
+                console.log(res.data);
+                this.question = res.data.question;
+                console.log(this.question.answerOptions)
+                bus.$emit("quiz-ready");
+                setTimeout(() => {
+                    this.countdown();
+                }, 1000);
+            }).catch(e => {
+                console.log(e);
+                bus.$emit("quiz-error");
+            }).finally(() => {
+            });
+        },
+        countdown() {
+            const countdown = setInterval(() => {
+                this.curSec--;
+                document.getElementById("stopwatch").classList.add("pulse");
+                setTimeout(() => {
+                    document.getElementById("stopwatch").classList.remove("pulse");
+                }, 300);
+                if (this.curSec == 0) {
+                    clearInterval(countdown);
+                    this.lost = true;
+                }
+            }, 1000);
+            this.stopwatchInterval = countdown;
+        },
+        endQuiz() {
+          this.quizEnded = true;
+          this.$refs.carousel.disableCarousel();
+          clearInterval(this.stopwatchInterval);
+        }
     },
-    stopwatchFont() {
-      switch(this.$vuetify.breakpoint.name) {
-        case 'lg':
-        case 'xl':
-          return '2.5em';
-        case 'md':
-          return '2em';
-        case 'sm':
-        case 'xs':
-        default:
-          return '1.5em';
-      }
+    computed: {
+        stopwatchSize() {
+            switch (this.$vuetify.breakpoint.name) {
+                case "lg":
+                case "xl":
+                    return "6em";
+                case "md":
+                    return "4em";
+                case "sm":
+                case "xs":
+                default:
+                    return "3.5em";
+            }
+        },
+        stopwatchFont() {
+            switch (this.$vuetify.breakpoint.name) {
+                case "lg":
+                case "xl":
+                    return "2.5em";
+                case "md":
+                    return "2em";
+                case "sm":
+                case "xs":
+                default:
+                    return "1.5em";
+            }
+        },
     },
-  }
+    beforeDestroy() {
+        clearInterval(this.stopwatchInterval);
+    },
+    components: { FlickityCarousel }
 }
 </script>
 

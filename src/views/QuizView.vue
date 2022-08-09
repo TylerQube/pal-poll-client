@@ -45,7 +45,7 @@
       <RingButton id="go-btn" @click.native="hideStartMenu();"></RingButton>
     </div>
     
-    <div id="quiz-container">
+    <div id="quiz-container" v-show="displayQuestion">
       <QuizQuestion ref="quizQuestion"></QuizQuestion>
     </div>
 
@@ -60,6 +60,7 @@
 import QuizIntro from '@/components/QuizIntro.vue'
 import RingButton from '../components/RingButton.vue'
 import QuizQuestion from '@/components/QuizQuestion.vue';
+import { bus } from '../main'
 
 export default {
   name: 'QuizView',
@@ -72,6 +73,8 @@ export default {
     return {
       loadingQ: false,
       error: false,
+      displayQuestion: false,
+      timeouts: []
     }
   },
   computed: {
@@ -96,16 +99,18 @@ export default {
 
       const textBlocks = document.querySelectorAll('.unrevealed');
       for(let i = 0; i < textBlocks.length; i++) {
-        setTimeout(() => {
+        const introTimer = setTimeout(() => {
           console.log("Revealing " + i );
           this.revealText(`text-${i+1}`);
         }, baseDelay + i * interval);
+        this.timeouts.push(introTimer);
       }
     
-      setTimeout(() => {
+      const revealTimer = setTimeout(() => {
         document.getElementById('go-btn').classList.add('reveal-btn');
         console.log("revealing but")
       }, 1000 + baseDelay + (textBlocks.length - 1) * interval);
+      this.timeouts.push(revealTimer);
     },
     revealText(id) {
       const ele = document.getElementById(id);
@@ -114,19 +119,20 @@ export default {
     },
     hideStartMenu() {
       const menu = document.getElementById('start-menu');
-      setTimeout(() => {
+      const swipeAnim = setTimeout(() => {
         menu.classList.add('swipe-away');
       }, 300)
 
-      setTimeout(() => {
+      const loadingTimer = setTimeout(() => {
         this.loadingQ = true;
       }, 1000);
 
-      setTimeout(() => {
+      const startQuizDelay = setTimeout(() => {
         menu.style.display = "none";
         this.startQuiz();
-        this.loadingQ = false;
-      }, 1500)
+      }, 1500);
+
+      this.timeouts.push([swipeAnim, loadingTimer, startQuizDelay]);
     },
     setupQuiz() {
       this.loadingQ = true;
@@ -148,18 +154,33 @@ export default {
       });
     },
     startQuiz() {
-      // this.$refs.quizQuestion.style.display = 'none';
-      document.getElementById('full-transition').classList.add('full-wipe');
+      
+      bus.$on('quiz-error', () => {this.error = true; this.loadingQ = false;});
+      this.displayQuestion = false;
 
       setTimeout(() => {
         this.$refs.quizQuestion.getQuestion();
-        // this.$refs.quizQuestion.style.display = '';
       }, 750);
+
+      // only transition once question loaded
+      bus.$on('quiz-ready', () => {
+        document.getElementById('full-transition').classList.add('full-wipe');
+        this.loadingQ = false;
+        setTimeout(() => {
+          console.log("SHOWING QUESTION")
+          this.displayQuestion = true;
+        }, 750);
+      });
       
     },
   },
   mounted() {
     this.setupQuiz();
+  },
+  beforeDestroy() {
+    for(const timer in this.timeouts) {
+      clearTimeout(timer);
+    }
   }
 }
 </script>
@@ -211,7 +232,7 @@ export default {
   }
 
   .main-container {
-    overflow:hidden;
+    overflow-x:hidden;
     height: calc(100vh - 60px);
     position: relative;
   }

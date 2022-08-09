@@ -73,8 +73,8 @@
         md="10"
         lg="8"
       >
-        <v-expansion-panels>
-        <v-expansion-panel class="color-black">
+        <v-expansion-panels :value="questionsOpen">
+        <v-expansion-panel class="color-black" >
           <v-expansion-panel-header>
             <h2>Questions</h2>
           </v-expansion-panel-header>
@@ -132,7 +132,8 @@ export default {
       questions: [],
 
       startDate: null,
-      dateMenu: false
+      dateMenu: false,
+      questionsOpen: 0
     }
   },
   computed: {

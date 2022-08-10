@@ -65,9 +65,6 @@ $btn-hover: #ffc16f;
   align-items: center;
 }
 
-#quiz-label {
-}
-
 #intro-slide-div {
   width: 100%;
   height: min(20em, 45vh);

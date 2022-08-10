@@ -353,8 +353,4 @@ nav {
   text-decoration: none;
   color: black !important;
 }
-
-.active-router {
-  // background-color: rgba(212, 0, 255, 0.09);
-}
 </style>

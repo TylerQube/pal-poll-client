@@ -11,7 +11,7 @@
         <img :src="require(`../assets/friends/${friend.name.toLowerCase()}.jpg`)" :alt="friend.name">
       </div>
     </flickity>
-    <h2 class="shadow" style="margin-top: 1.5em;">{{ friendsImgs[selectedIndex].name }}</h2>
+    <h2 class="shadow label-margin" id="carousel-label">{{ friendsImgs[selectedIndex].name }}</h2>
   </div>
 </template>
 
@@ -80,9 +80,10 @@ export default {
       }
       try {
         const buttons = document.querySelectorAll('.flickity-button');
-        for(const b in buttons) {
+        for(let b = 0; b < buttons.length; b++) {
           buttons[b].style.display = "none"
         }
+        document.getElementById('carousel-label').classList.remove('label-margin');
       } catch (e) {
         console.log(e)
       }
@@ -110,6 +111,15 @@ export default {
 
 .carousel {
   width: min(90vw, 400px);
+}
+
+.label-margin {
+  margin-top: 1.5em;
+}
+
+#carousel-label {
+  transition-duration: .5s;
+  transition-property: margin-top;
 }
 
 .carousel-cell {

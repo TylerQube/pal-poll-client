@@ -48,9 +48,7 @@
     <div id="quiz-container" v-show="displayQuestion">
       <QuizQuestion ref="quizQuestion"></QuizQuestion>
     </div>
-
     <div id="full-transition">
-
     </div>
   </div>
   
@@ -67,14 +65,16 @@ export default {
   components: {
     QuizIntro,
     RingButton,
-    QuizQuestion
+    QuizQuestion,
 },
   data() {
     return {
       loadingQ: false,
       error: false,
       displayQuestion: false,
-      timeouts: []
+      timeouts: [],
+
+      showAnswer: false,
     }
   },
   computed: {
@@ -173,9 +173,15 @@ export default {
       });
       
     },
+    // userRes : String
+    endQuiz(userRes, guessTime) {
+      this.$refs.quizAnswer.submitAnswer(userRes, guessTime);
+    },
   },
   mounted() {
     this.setupQuiz();
+
+    bus.$on('end-quiz', this.endQuiz);
   },
   beforeDestroy() {
     for(const timer in this.timeouts) {

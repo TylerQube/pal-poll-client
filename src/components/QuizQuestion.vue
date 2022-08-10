@@ -18,11 +18,11 @@
           text-sm-h4
           text-h4
         ">
-          {{ question.questionBody }}
+          {{ question != null ? question.questionBody : '' }}
         </h1>
       </v-col>
     </v-row>
-    <v-row v-if="question.answerOptions && question.answerOptions.length > 0">
+    <v-row v-if="question != null && question.answerOptions && question.answerOptions.length > 0">
       <v-container>
         <v-row class="d-flex flex-row justify-center">
           <v-col
@@ -35,8 +35,8 @@
             xs="6"
           >
             <div >
-              <input type="radio" :disabled="curSec <= 0" :id="`control_${i}`" name="select" :value="question.answerOptions[i].answerBody">
-              <label :for="`control_${i}`" @click="selected = true;">
+              <input type="radio" :disabled="curSec <= 0 || quizEnded" :id="`control_${i}`" name="select" v-model="multiChoiceAnswer" :value="question.answerOptions[i].answerBody">
+              <label :for="`control_${i}`" @click="selected = true;" :id="`label_${i}`">
                 <h2>{{ question.answerOptions[i].answerBody }}</h2>
               </label>
             </div>
@@ -60,14 +60,14 @@
       <v-row>
         <v-col cols="12" class="d-flex justify-center">
           <v-btn
-            v-show="selected || (question.answerOptions.length == 0)"
+            v-show="(selected || question.answerOptions.length == 0) && !(quizEnded && !submittingQuiz)"
             style="color: white; font-family: 'Nunito', sans-serif; font-size: 1.5rem;"
             rounded
             color="purple"
             x-large
             :block="this.$vuetify.breakpoint.name == 'xs'"
-            @click="endQuiz()"
-            :loading="quizEnded"
+            @click.native="endQuiz()"
+            :loading="submittingQuiz"
           >
             DONE!
           </v-btn>
@@ -90,10 +90,13 @@ export default {
             question: null,
             selected: false,
             curSec: 60,
-            lost: false,
+            timeLimit: 60,
             stopwatchInterval: null,
 
-            quizEnded: false
+            quizEnded: false,
+            submittingQuiz: false,
+
+            multiChoiceAnswer: null,
         };
     },
     methods: {
@@ -123,18 +126,61 @@ export default {
                 }, 300);
                 if (this.curSec == 0) {
                     clearInterval(countdown);
-                    this.lost = true;
+                    this.endQuiz();
                 }
             }, 1000);
             this.stopwatchInterval = countdown;
         },
-        endQuiz() {
+        async endQuiz() {
           this.quizEnded = true;
-          this.$refs.carousel.disableCarousel();
+          // disable carousel if multiple choice
+          if(!this.question.answerOptions || this.question.answerOptions.length == 0) this.$refs.carousel.disableCarousel();
+          // disable timer
           clearInterval(this.stopwatchInterval);
+
+          const guess = this.question.answerOptions.length > 0 ? this.multiChoiceAnswer : this.pollAnswer;
+          const elapsed = this.timeLimit - this.curSec
+          this.submitAnswer(guess, elapsed);
+
+        },
+        async submitAnswer(userAnswer, guessTime) {
+          this.submittingQuiz = true;
+
+          const body = {
+            guess: userAnswer,
+            guessTime: guessTime
+          };
+
+          await this.$http.post(`http://localhost:3030/guess/submit`, body, {
+            headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` }
+          }).then(res => {
+            console.log(res);
+          if(res.data.correctIndex) this.revealAnswer(res.data.correctIndex);
+          }).catch(e => {
+            console.log(e)
+          }).finally(() => {
+            this.submittingQuiz = false;
+          });
+        },
+        revealAnswer(correctIndex) {
+          if(!this.question.answerOptions) return;
+          for(let i = 0; i < this.question.answerOptions.length; i++) {
+            const label = document.getElementById(`label_${i}`);
+            if(i == correctIndex) {
+              label.classList.add('correct-choice');
+            }
+            else label.classList.add('incorrect-choice');
+
+            if(document.getElementById(`control_${i}`).checked) {
+              label.classList.add(i == correctIndex ? 'chosen-correct' : 'chosen-incorrect');
+            }
+          }
         }
     },
     computed: {
+        pollAnswer() {
+          return this.$refs.carousel.friendsImgs[this.$refs.carousel.selectedIndex].name;
+        },
         stopwatchSize() {
             switch (this.$vuetify.breakpoint.name) {
                 case "lg":
@@ -165,11 +211,11 @@ export default {
     beforeDestroy() {
         clearInterval(this.stopwatchInterval);
     },
-    components: { FlickityCarousel }
+    components: { FlickityCarousel },
 }
 </script>
 
-<!-- https://codepen.io/adamstuartclark/pen/pbYVYR -->
+<!-- /* https://codepen.io/adamstuartclark/pen/pbYVYR */ -->
 <style lang="scss" scoped>
   .container {
     color: white;
@@ -224,6 +270,10 @@ export default {
     text-align: center;
     box-shadow: 0px 3px 10px -2px hsla(150, 5%, 65%, 0.5);
     position: relative;
+
+    padding-top: 1.5em;
+    padding-bottom: 1.5em;
+
   }
   input[type="radio"]:checked + label {
     background: $btn-hover;
@@ -251,6 +301,28 @@ export default {
   input[type="radio"]#control_05:checked + label {
     background: red;
     border-color: red;
+  }
+
+  .incorrect-choice {
+    background-color: #e33434 !important;
+    color: white !important;
+  }
+  
+  .correct-choice {
+    background-color: rgb(20, 165, 20) !important;
+    color: white !important;
+  }
+
+  .chosen-correct {
+    &::after {
+      content: '✔️' !important;
+    }
+  }
+
+  .chosen-incorrect {
+    &::after {
+      content: '❌' !important;
+    }
   }
 
     .stopwatch {

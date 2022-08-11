@@ -30,14 +30,15 @@ export default {
   outline: none;
   position: relative;
   padding: 10px;
-  }
+
+}
 
 button::before {
   content: '';
   border-radius: 1000px;
   min-width: calc(120px + 12px);
   min-height: calc(120px + 12px);
-  border: 6px solid #ffffff;
+  border: 3px solid #ffffff;
   box-shadow: 0 0 60px rgba(255, 245, 232, 0.702);
   position: absolute;
   top: 50%;
@@ -55,6 +56,8 @@ button::before {
 .button:active, .button:focus {
   color: white;
   transform: translateY(6px);
+
+  transition: transform 0.3s ease;
 }
 
 button:hover::before, button:focus::before {

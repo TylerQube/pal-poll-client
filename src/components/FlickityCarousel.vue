@@ -150,7 +150,7 @@ export default {
 @keyframes circle {
   100% {
     border-radius: 50%;
-    box-shadow: 5px 5px 15px black;
+    box-shadow: 0px 5px 15px black;
     transform: scale(0.8);
   }
 }

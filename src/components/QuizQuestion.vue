@@ -3,7 +3,7 @@
     <v-container class="container">
     <v-row>
       <v-col cols="12" class="d-flex flex-row justify-end">
-        <div id="stopwatch" class="stopwatch" :style="`height: ${stopwatchSize}; width: ${stopwatchSize}`">
+        <div v-if="question.answerOptions && question.answerOptions.length > 0" id="stopwatch" class="stopwatch" :style="`height: ${stopwatchSize}; width: ${stopwatchSize}`">
           <h1 :style="`font-size: ${stopwatchFont}`">{{ curSec }}</h1>
         </div>
       </v-col>
@@ -71,6 +71,22 @@
           >
             DONE!
           </v-btn>
+          <v-btn
+            v-show="quizEnded && !submittingQuiz"
+            style="color: white;"
+            x-large
+            rounded
+            color="purple"
+            :block="this.$vuetify.breakpoint.name == 'xs'"
+            @click.native="toStats()"
+          >
+            See the results!
+            <v-icon
+              right
+            >
+              mdi-arrow-right-bold
+            </v-icon>
+          </v-btn>
         </v-col>
       </v-row>
     </v-container>
@@ -89,8 +105,8 @@ export default {
         return {
             question: null,
             selected: false,
-            curSec: 60,
-            timeLimit: 60,
+            curSec: 5,
+            timeLimit: 5,
             stopwatchInterval: null,
 
             quizEnded: false,
@@ -100,6 +116,9 @@ export default {
         };
     },
     methods: {
+        toStats() {
+          this.$router.push("/stats");
+        },
         getQuestion() {
             return this.$http.get("http://localhost:3030/questions/daily", {
                 headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` }
@@ -120,13 +139,18 @@ export default {
         countdown() {
             const countdown = setInterval(() => {
                 this.curSec--;
-                document.getElementById("stopwatch").classList.add("pulse");
-                setTimeout(() => {
-                    document.getElementById("stopwatch").classList.remove("pulse");
-                }, 300);
-                if (this.curSec == 0) {
-                    clearInterval(countdown);
-                    this.endQuiz();
+                if(this.question.answerOptions && this.question.answerOptions.length > 0) {
+                  document.getElementById("stopwatch").classList.add("pulse");
+                  setTimeout(() => {
+                      document.getElementById("stopwatch").classList.remove("pulse");
+                  }, 300);
+                }
+                
+                if (this.curSec == 0 && (this.question.answerOptions && this.question.answerOptions.length > 0)) {
+                  console.log("OUTTA TIME")
+                  console.log("Options length: " + this.question.answerOptions.length)
+                  clearInterval(countdown);
+                  this.endQuiz();
                 }
             }, 1000);
             this.stopwatchInterval = countdown;
@@ -139,7 +163,8 @@ export default {
           clearInterval(this.stopwatchInterval);
 
           const guess = this.question.answerOptions.length > 0 ? this.multiChoiceAnswer : this.pollAnswer;
-          const elapsed = this.timeLimit - this.curSec
+          // Use stopwatch time if quiz, use all elapsed time if poll
+          const elapsed = this.question.answerOptions.length > 0 ? this.timeLimit - this.curSec : Math.abs(this.curSec) + this.timeLimit;
           this.submitAnswer(guess, elapsed);
 
         },

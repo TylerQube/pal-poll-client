@@ -22,7 +22,7 @@
           :class="flavorTextClasslist + ' unrevealed'"
           id="text-1"
         >
-        <span>Race the clock!</span>
+        <span>{{ flavorText[0] }}</span>
         </p>
       </div>
       <div class="block-container">
@@ -30,7 +30,7 @@
           :class="flavorTextClasslist + ' unrevealed'"
           id="text-2"
         >
-        <span>Once you start the timer...</span>
+        <span>{{ flavorText[1] }}</span>
         </p>
       </div>
       <div class="block-container">
@@ -38,7 +38,7 @@
           :class="flavorTextClasslist + ' unrevealed'"
           id="text-3"
         >
-        <span>No do-overs!</span>
+        <span>{{ flavorText[2] }}</span>
         </p>
       </div>
       </div>
@@ -75,9 +75,26 @@ export default {
       timeouts: [],
 
       showAnswer: false,
+
+      quizFlavor: [
+        "Test your knowledge!",
+        "Watch the clock!",
+        "No do-overs!"
+      ],
+
+      pollFlavor: [
+        "Think long and hard...",
+        "Pick a final answer...",
+        "And cast your vote!"
+      ],
+
+      qType: ""
     }
   },
   computed: {
+    flavorText() {
+      return this.qType == "Quiz" ? this.quizFlavor : this.pollFlavor;
+    },
     flavorTextClasslist() {
       let classlist = `
         shadow 
@@ -141,6 +158,7 @@ export default {
       }).then(res => {
         console.log(res.data);
         this.$refs.quizIntro.qType = res.data.qType;
+        this.qType = res.data.qType;
         this.$refs.quizIntro.dayNum = res.data.orderNum + 1;
 
         this.$refs.quizIntro.animate();
@@ -160,7 +178,7 @@ export default {
 
       setTimeout(() => {
         this.$refs.quizQuestion.getQuestion();
-      }, 750);
+      }, 0);
 
       // only transition once question loaded
       bus.$on('quiz-ready', () => {
@@ -169,7 +187,7 @@ export default {
         setTimeout(() => {
           console.log("SHOWING QUESTION")
           this.displayQuestion = true;
-        }, 750);
+        }, 550);
       });
       
     },
@@ -219,7 +237,8 @@ export default {
   }
 
   .full-wipe {
-    animation: 1.5s transition-wipe;
+    animation: 1.1s transition-wipe;
+    animation-timing-function: ease;
   }
 
   @keyframes transition-wipe {

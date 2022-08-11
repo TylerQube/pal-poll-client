@@ -6,7 +6,16 @@
   <div id="app">
       <v-app-bar ref="navbar" height="60px">
         <div>
-          <h1><router-link to="/" class="router-link">PalPoll</router-link></h1>
+          <router-link to="/" class="router-link">
+            <v-img 
+              :src="require('../src/assets/palpoll_logo_heavy.png')" 
+              max-height="50"
+              max-width="170"
+              contain
+              style="margin-left: -11px; margin-top: 3px;"
+            >
+            </v-img>
+          </router-link>
         </div>
         <div v-if="!isMobile" style="height:100%">
           <v-list
@@ -89,6 +98,7 @@
       temporary
       right
       app
+      hide-overlay
     >
       <div
         class="d-flex flex-column justify-space-between"
@@ -305,6 +315,10 @@ export default {
 </script>
 
 <style lang="scss">
+
+#logo {
+  height: 90%;
+}
 
 #tsparticles canvas {
   overflow-x:hidden;

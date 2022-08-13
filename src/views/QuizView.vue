@@ -83,7 +83,7 @@ export default {
       ],
 
       pollFlavor: [
-        "Think long and hard...",
+        "Take your time...",
         "Pick a final answer...",
         "And cast your vote!"
       ],

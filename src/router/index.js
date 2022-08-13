@@ -5,6 +5,7 @@ import LoginView from '../views/LoginView.vue'
 import ProfileView from '../views/ProfileView'
 import AdminView from '../views/AdminView'
 import QuizView from '../views/QuizView'
+import StatsView from '../views/StatsView'
 
 Vue.use(VueRouter)
 
@@ -42,6 +43,14 @@ const routes = [
     path: '/play',
     name: 'play',
     component: QuizView,
+    meta: {
+      requiresAuth: true,
+    }
+  },
+  {
+    path: '/stats',
+    name: 'stats',
+    component: StatsView,
     meta: {
       requiresAuth: true,
     }

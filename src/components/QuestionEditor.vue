@@ -456,6 +456,7 @@ export default {
       this.submittingQuestion = true;
       let reqAnswerOptions = [];
       for(let i = 0; i < this.questionForm.answerOptions.length; i++) {
+        if(this.questionForm.questionType == 'Poll') continue;
         reqAnswerOptions.push({
           optionNumber: i,
           answerBody: this.questionForm.answerOptions[i]

@@ -33,7 +33,7 @@ export default {
 
       flickityOptions: {
         setGallerySize: false,
-        pageDots: true,
+        pageDots: false,
         initialIndex: 2
       },
 
@@ -83,9 +83,12 @@ export default {
       });
     },
     createCard(res) {
+      console.log("FETCHED QUESTION")
+      console.log(res)
       this.statsInfo.push({
         question: res.data.question,
-        guesses: res.data.guesses ?? res.data.votes
+        guesses: res.data.guesses ?? res.data.votes,
+        // chosenOptions: res.data.chosenOptions
       });
 
       // const newCard = new StatsCardClass({
@@ -118,8 +121,8 @@ export default {
     // })
     for(let i = this.statsCards.length - 1; i >= 0; i--) {
       const res = await this.loadStats(this.statsCards[i]);
+      console.log(res)
       console.log("Creating card");
-      console.log(res.data);
       this.createCard(res);
     }
     setTimeout(() => {
@@ -129,18 +132,21 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 
 .stats-container {
   height: calc(100vh - 60px);
 }
 
 .stats-carousel {
-  height: /* calc(100vh - 60px); */ 80vh;
-  padding-top: 3rem;
+  height: /* calc(100vh - 60px); */ calc(100vh - 60px);
 }
 
 .flickity-viewport {
-  height: /* calc(100vh - 60px); */ 80vh;
+  padding-top: 2rem;
+
+  height: /* calc(100vh - 60px); */ calc(100vh - 60px);
+  overflow-y: scroll !important;
+  overflow-x: hidden;
 }
 </style>

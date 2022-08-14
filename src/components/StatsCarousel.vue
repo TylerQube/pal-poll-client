@@ -1,15 +1,20 @@
 <template>
   <div class="stats-container">
-    <flickity ref="flickity" id="stats-carousel" :options="flickityOptions" class="stats-carousel" @init="onInit">
+    <flickity ref="flickity" id="stats-carousel" :options="flickityOptions" class="stats-carousel" @init="onInit" v-show="statsInfo.length > 0">
       <StatsCard 
         v-for="(info, i) in statsInfo"
         :key="i"
         :question="info.question"
         :guesses="info.guesses"
+        :users="info.users"
         :flickity="$refs.flickity"
+        :notPlayed="info.notPlayed"
       >
       </StatsCard>
     </flickity>
+    <div v-if="statsInfo.length == 0" class="loading-wrapper d-flex flex-col flex-center">
+      <h1 class="shadow">No stats to display!</h1>
+    </div>
   </div>
 </template>
 
@@ -64,11 +69,7 @@ export default {
 
       if(ind) {
         console.log(`Adding index ${ind}`)
-        const res = await this.loadStats(ind);
-        if(res.status == 200) {
-          // this.statsInfo.splice(0, 0, res.data);
-          this.createCard(res);
-        }
+        this.loadStats(ind);
       }
       
       this.selectedIndex = event
@@ -77,57 +78,36 @@ export default {
         
       return await this.$http.get(`http://localhost:3030/stats/get/${relativeIndex}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('jwt')}` }
-      }).catch(() => {
-        return;
-        // console.log(e);
+      }).then(res => {
+        if(res.status == 200) {
+          this.createCard(res);
+        }
+      }).catch((e) => {
+        console.log(e);
+        console.log(e.response.data.msg)
+        if(e.response.data.msg.includes("User has not played")) {
+          console.log("Not played")
+          this.statsInfo.push({
+            notPlayed: true
+          })
+        } 
       });
     },
     createCard(res) {
       console.log("FETCHED QUESTION")
       console.log(res)
+      
       this.statsInfo.push({
         question: res.data.question,
         guesses: res.data.guesses ?? res.data.votes,
-        // chosenOptions: res.data.chosenOptions
+        users: res.data.users
       });
-
-      // const newCard = new StatsCardClass({
-      //   propsData: { 
-      //     question: res.data.question,
-      //     guesses: res.data.guesses ?? res.data.votes
-      //   }
-      // });
-
-      // newCard.$mount();
-      // if(prepend) {
-      //   this.$refs.flickity.$el.prepend(newCard.$el);
-      //   this.$refs.flickity.prepend([newCard.$el]);
-      // } else {
-      //   this.$refs.flickity.$el.appendChild(newCard.$el);
-      //   this.$refs.flickity.prepend([newCard.$el]);
-      // }
-      
     }
   },
   async mounted() {
-
-    // bus.$on('update-carousel', () => {
-    //   console.log('rerendering')
-    //   this.$refs.flickity.rerender();
-    // })
-
-    // bus.$on('add-carousel-item', ele => {
-    //   this.$refs.flickity.append([ele]);
-    // })
     for(let i = this.statsCards.length - 1; i >= 0; i--) {
-      const res = await this.loadStats(this.statsCards[i]);
-      console.log(res)
-      console.log("Creating card");
-      this.createCard(res);
+      await this.loadStats(this.statsCards[i]);
     }
-    setTimeout(() => {
-      // this.$refs.flickity.rerender();
-    }, 1)
   }
 }
 </script>
@@ -142,11 +122,14 @@ export default {
   height: /* calc(100vh - 60px); */ calc(100vh - 60px);
 }
 
-.flickity-viewport {
-  padding-top: 2rem;
+#stats-carousel {
+  .flickity-viewport {
+   padding-top: 1rem;
 
-  height: /* calc(100vh - 60px); */ calc(100vh - 60px);
-  overflow-y: scroll !important;
-  overflow-x: hidden;
+    height: /* calc(100vh - 60px); */ calc(100vh - 60px);
+    overflow-y: scroll !important;
+    overflow-x: hidden;
+  }
 }
+
 </style>

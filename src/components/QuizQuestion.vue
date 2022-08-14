@@ -164,7 +164,9 @@ export default {
 
           const guess = this.question.answerOptions.length > 0 ? this.multiChoiceAnswer : this.pollAnswer;
           // Use stopwatch time if quiz, use all elapsed time if poll
-          const elapsed = this.question.answerOptions.length > 0 ? this.timeLimit - this.curSec : Math.abs(this.curSec) + this.timeLimit;
+          const elapsed = this.question.answerOptions.length > 0 ? 
+            this.timeLimit - this.curSec : 
+            (this.curSec < 0 ? Math.abs(this.curSec) + this.timeLimit : this.timeLimit - this.curSec);
           this.submitAnswer(guess, elapsed);
 
         },

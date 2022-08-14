@@ -14,42 +14,52 @@
       <h1 class="shadow">Sorry, something went wrong!</h1>
       <img src="../assets/sad_egg.jpg" alt="Sad Egg" class="icon">
     </div>
-    <div class="flex-between" id="start-menu">
-      <div class="intro-container flex-center">
-      <QuizIntro ref="quizIntro"></QuizIntro>
-      <div class="block-container">
-        <p
-          :class="flavorTextClasslist + ' unrevealed'"
-          id="text-1"
-        >
-        <span>{{ flavorText[0] }}</span>
-        </p>
+    <div v-if="alreadyPlayed" class="loading-wrapper d-flex flex-col flex-center">
+      <h1 class="shadow">You've already played, come back tomorrow!</h1>
+      <CountdownTimer ref="timer"></CountdownTimer>
+    </div>
+    <div v-if="notStarted" class="loading-wrapper d-flex flex-col flex-center">
+      <h1 class="shadow">PalPoll hasn't started yet, come back soon!</h1>
+    </div>
+    <div v-if="!alreadyPlayed">
+      <div class="flex-between" id="start-menu">
+        <div class="intro-container flex-center">
+        <QuizIntro ref="quizIntro"></QuizIntro>
+        <div class="block-container">
+          <p
+            :class="flavorTextClasslist + ' unrevealed'"
+            id="text-1"
+          >
+          <span>{{ flavorText[0] }}</span>
+          </p>
+        </div>
+        <div class="block-container">
+          <p
+            :class="flavorTextClasslist + ' unrevealed'"
+            id="text-2"
+          >
+          <span>{{ flavorText[1] }}</span>
+          </p>
+        </div>
+        <div class="block-container">
+          <p
+            :class="flavorTextClasslist + ' unrevealed'"
+            id="text-3"
+          >
+          <span>{{ flavorText[2] }}</span>
+          </p>
+        </div>
+        </div>
+        <RingButton id="go-btn" @click.native="hideStartMenu();"></RingButton>
       </div>
-      <div class="block-container">
-        <p
-          :class="flavorTextClasslist + ' unrevealed'"
-          id="text-2"
-        >
-        <span>{{ flavorText[1] }}</span>
-        </p>
+      
+      <div id="quiz-container" v-show="displayQuestion">
+        <QuizQuestion ref="quizQuestion"></QuizQuestion>
       </div>
-      <div class="block-container">
-        <p
-          :class="flavorTextClasslist + ' unrevealed'"
-          id="text-3"
-        >
-        <span>{{ flavorText[2] }}</span>
-        </p>
+      <div id="full-transition">
       </div>
-      </div>
-      <RingButton id="go-btn" @click.native="hideStartMenu();"></RingButton>
     </div>
     
-    <div id="quiz-container" v-show="displayQuestion">
-      <QuizQuestion ref="quizQuestion"></QuizQuestion>
-    </div>
-    <div id="full-transition">
-    </div>
   </div>
   
 </template>
@@ -59,6 +69,7 @@ import QuizIntro from '@/components/QuizIntro.vue'
 import RingButton from '../components/RingButton.vue'
 import QuizQuestion from '@/components/QuizQuestion.vue';
 import { bus } from '../main'
+import CountdownTimer from '@/components/CountdownTimer.vue';
 
 export default {
   name: 'QuizView',
@@ -66,6 +77,7 @@ export default {
     QuizIntro,
     RingButton,
     QuizQuestion,
+    CountdownTimer
 },
   data() {
     return {
@@ -75,6 +87,8 @@ export default {
       timeouts: [],
 
       showAnswer: false,
+      alreadyPlayed: false,
+      notStarted: false,
 
       quizFlavor: [
         "Test your knowledge!",
@@ -165,7 +179,18 @@ export default {
         this.animText();
       }).catch(e => {
         console.log(e);
-        console.log("SHOWING ERROR")
+        if(e.response.data.msg) {
+          if(e.response.data.msg.includes("already played")) {
+            this.alreadyPlayed = true;
+            return;
+          } else if(e.response.data.msg.includes("has not yet started")) {
+            this.notStarted = true;
+            return;
+          }
+        }
+        
+
+        console.log("SHOWING ERROR");
         this.error = true;
       }).finally(() => {
         this.loadingQ = false;

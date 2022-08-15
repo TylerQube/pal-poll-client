@@ -87,15 +87,17 @@
               <Draggable
                 v-for="(question, index) in questions"
                 :key="index"
+                :move="!question.archived"
                 class="mb-4"
               >
                 <v-card>
                   <QuestionEditor 
                     :questionIndex="index"
-                    :question="question"
+                    :question="question.question"
+                    :archived="question.archived"
                   ></QuestionEditor>
                 </v-card>
-              </Draggable>>
+              </Draggable>
             </Container>
           </v-expansion-panel-content>
         </v-expansion-panel>
@@ -133,21 +135,26 @@ export default {
 
       startDate: null,
       dateMenu: false,
-      questionsOpen: 0
+      questionsOpen: 0,
+
+      daysSince: 0
     }
   },
   computed: {
   },
   methods: {
     getQuestions(startNum, num) {
-      return this.$http.get(`http://localhost:3030/questions/get/${startNum}/${num}`, {
+      this.$http.get(`http://localhost:3030/questions/get/${startNum}/${num}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` }
       }).then(res => {
         console.log("Received questions");
         console.log(res);
+        this.daysSince = res.data.daysSince;
 
-        for(let i = 0; i < res.data.questions.length; i++) {
-          const q = res.data.questions[i];
+        const len = res.data.questionList.length;
+
+        for(let i = 0; i < len; i++) {
+          const q = res.data.questionList[i].question;
 
           let newQuestion = {
             _id: q._id,
@@ -161,7 +168,7 @@ export default {
           } else {
             newQuestion.questionType = 'Quiz';
           }
-          this.questions.push(newQuestion);
+          this.questions.push({question: newQuestion, archived: res.data.questionList[i].archived} );
         }
       }).catch(err => {
         console.log(err);
@@ -173,6 +180,11 @@ export default {
 
       const movedQuestion = this.questions[oldIndex];
 
+      console.log("New: " + newIndex);
+      console.log("Days since: " + this.daysSince)
+
+      if(newIndex <= this.daysSince) return;
+      
       this.arrayMove(this.questions, oldIndex, newIndex);
 
       const reqBody = {

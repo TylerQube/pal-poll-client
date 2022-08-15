@@ -21,16 +21,16 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-    <v-form :disabled="this.submittingQuestion || !this.editing">
+    <v-form :disabled="this.submittingQuestion || !this.editing || this.archived">
       <v-container>
         <v-row>
           <v-col
             v-if="this.question"
             cols="auto"
-            class="drag-handle"
+            :class="!archived ? 'drag-handle' : ''"
           >
             <h3>{{ this.question != undefined && this.questionIndex != undefined ? this.questionIndex+1 : "" }}</h3>
-            <v-icon>
+            <v-icon v-if="!archived">
               mdi-arrow-split-horizontal
             </v-icon>
           </v-col>
@@ -48,8 +48,6 @@
           </v-col>
           <v-col
             cols="auto"
-            md="8"
-            lg="8"
             class="d-flex flex-row align-center"
           >
             <p
@@ -68,20 +66,24 @@
           <v-spacer></v-spacer>
           <v-col
             cols="auto"
+            class="d-flex flex-row align-center"
             v-if="this.question != undefined"
           >
+            <v-chip
+              v-if="archived"
+            >Archived</v-chip>
             <v-btn
               class="mx-2"
               fab
               small
               depressed
               elevation="1"
-              @click="editing = !editing; if(!editing) cancelEdit();"
+              @click="toggleEdit()"
             >
               <v-icon 
                 v-if="!editing"
               >
-                mdi-pencil
+                {{ !archived ? 'mdi-pencil' : 'mdi-eye' }}
               </v-icon>
               <v-icon 
                 v-if="editing"
@@ -89,12 +91,13 @@
                 mdi-window-close
               </v-icon>
             </v-btn>
+            
           </v-col>
         </v-row>
         <div
           v-if="editing"
         >
-        <v-row>
+        <v-row v-if="!archived">
           <v-col cols="auto">
             <v-btn-toggle
             v-model="questionForm.questionType"
@@ -103,12 +106,12 @@
             color="deep-purple accent-3"
             group
             >
-              <v-btn value="Quiz">
+              <v-btn value="Quiz" :disabled="archived">
                 <v-icon>
                   mdi-chat-question
                 </v-icon>
               </v-btn>
-              <v-btn value="Poll">
+              <v-btn value="Poll" :disabled="archived">
                 <v-icon>
                   mdi-chart-bar
                 </v-icon>
@@ -166,6 +169,7 @@
             <v-icon
               :disabled="questionForm.answerOptions.length <= 2"
               @click="questionForm.answerOptions.splice(i, 1); if(questionForm.correctAnswer >= questionForm.answerOptions.length) questionForm.correctAnswer--;"
+              v-if="!archived"
             >
               mdi-delete
             </v-icon>
@@ -180,7 +184,7 @@
           >
             <v-btn
               plain
-              v-if="questionForm.answerOptions.length < 10 && this.editing"
+              v-if="questionForm.answerOptions.length < 10 && this.editing && !archived"
               @click="questionForm.answerOptions.push('')"
             >
               Add Option
@@ -195,7 +199,7 @@
         </v-row>
         </template>
         <v-row
-          v-if="editing"
+          v-if="editing && !archived"
         >
           <v-col
             cols="auto"
@@ -252,7 +256,11 @@ export default {
   name: 'QuestionEditor',
   props: {
     question: Object,
-    questionIndex: Number
+    questionIndex: Number,
+    archived: {
+      type: Boolean,
+      default: false
+    }
   },
   data() {
     return {
@@ -337,6 +345,10 @@ export default {
     }
   },
   methods: {
+    toggleEdit() {
+      this.editing = !this.editing; 
+      if(!this.editing) this.cancelEdit();
+    },  
     loadQuestionProp() {
       // if question provided, 
       if(this.question != undefined) {

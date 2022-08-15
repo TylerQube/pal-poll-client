@@ -104,7 +104,7 @@
                         <img :src="users[i].avatarUrl" alt=""><p>{{ users[i].displayName }}</p>
                       </div>
                     </td>
-                    <td>{{ (isQuiz ? (!guess.isCorrect ? '❌ ' : '✔️ ') : "") + (isQuiz ? answerContentFromId(guess.answerOptionId) : guess.guessContent) }}</td>
+                    <td>{{ tableGuess(guess) }}</td>
                     <td>{{ guess.timeElapsed > 60 ? "60+" : guess.timeElapsed + "s" }}</td>
                   </tr>
                 </tbody>
@@ -199,6 +199,22 @@ export default {
             if(option._id == optionId) return option.answerBody;
           }
           return null;
+        },
+        tableGuess(guess) {
+          let str = "";
+          if(this.isQuiz) {
+            if(guess.answerOptionId) {
+              str += !guess.isCorrect ? '❌' : '✔️'
+              str += " "
+              str += this.answerContentFromId(guess.answerOptionId)
+            } else {
+              str += "⏰"
+              // str += "N/A"
+            }
+          } else {
+            str += guess.guessContent;
+          }
+          return str;
         }
     },
     computed: {

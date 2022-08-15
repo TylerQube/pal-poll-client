@@ -110,9 +110,13 @@ export default {
       for(const entry in votes) {
 
         const count = votes[entry];
-        this.chartData.labels.push(entry[0].toUpperCase() + entry.slice(1));
+        console.log("Entry: " + typeof(entry))
+        if(entry != "null") {
+          const label = entry[0].toUpperCase() + entry.slice(1)
+          this.chartData.labels.push(label);
+          this.chartData.datasets[0].data.push(count)
+        }
 
-        this.chartData.datasets[0].data.push(count)
       }
     }
   },

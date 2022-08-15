@@ -176,7 +176,6 @@ export default {
       displayName: null,
       userInfo: null,
       avatarUrl: "",
-      showMenu: false,
       showDrawer: false,
 
       isAdmin: false,
@@ -270,13 +269,15 @@ export default {
     bus.$on('new-token', async (newToken) => {
       this.token = newToken;
       localStorage.setItem("jwt", newToken);
+      this.$router.push("/");
+
       await this.getUserInfo();
       this.fetchAvatar();
       this.checkAdmin();
     });
 
-    bus.$on('logged-in', () => {
-      this.$router.push("/");
+    bus.$on('logout', () => {
+      this.logout();
     });
 
     bus.$on('user-updated', async () => {

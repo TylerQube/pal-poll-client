@@ -7,6 +7,7 @@ import AdminView from '../views/AdminView'
 import QuizView from '../views/QuizView'
 import StatsView from '../views/StatsView'
 import PageNotFound from '../views/PageNotFound'
+import { bus } from '@/main'
 
 Vue.use(VueRouter)
 
@@ -37,6 +38,7 @@ const routes = [
     name: 'admin',
     component: AdminView,
     meta: {
+      requiresAuth: true,
       requiresAdmin: true
     }
   },
@@ -69,11 +71,47 @@ const router = new VueRouter({
 })
 
 router.beforeEach(async (to, from, next) => {
+
   console.log(to.name)
-  if (to.meta.requiresAuth && localStorage.getItem("jwt") == null) {
-    console.log(to.name + " requires auth...")
-    return next({ name: 'login' })
+  if(to.meta.requiresAuth) {
+    if(localStorage.getItem("jwt") == null) {
+      console.log(to.name + " requires auth...")
+      return next({ name: 'login' })
+    }
+
+    if(to.name != 'login') {
+      console.log("Must authenticate user");
+      // authenticate admin through backend
+      const res = await fetch("http://localhost:3030/user/userAuth", {
+        headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` }
+      });
+      console.log(res)
+      const auth = res.status == 200;
+
+      if(!auth) {
+        localStorage.removeItem("jwt")
+        bus.$emit('logout');
+        return next({ name: 'login' })
+      } 
+    }
   }
+
+  // if (to.meta.requiresAuth && localStorage.getItem("jwt") == null) {
+  //   console.log(to.name + " requires auth...")
+  //   return next({ name: 'login' })
+  // }
+  // if(to.meta.requiresAuth && localStorage.getItem("jwt") != null && to.name != 'login' && from.name != 'login') {
+  //   console.log("Must authenticate user");
+  //   // authenticate admin through backend
+  //   const res = await fetch("http://localhost:3030/user/userAuth", {
+  //     headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` }
+  //   });
+  //   console.log(res)
+  //   const auth = res.status == 200;
+
+  //   if(!auth) return next({ name: 'login' })
+  // }
+  
   if (to.name == 'login' && localStorage.getItem("jwt") != null && localStorage.getItem('jwt') != "null") {
     console.log("already logged in")
     return next({ name: 'home' })

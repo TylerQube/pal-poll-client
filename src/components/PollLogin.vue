@@ -3,12 +3,13 @@
     <v-card class="card">
       <p class="login-header">Login</p>
       <v-form>
-        <v-text-field 
+        <!-- <v-text-field 
           v-model="login.username" 
           label="Username" 
           :error="errorMsg != ''"
           @keydown="errorMsg = ''"
-        ></v-text-field>
+        ></v-text-field> -->
+        <input type="text" v-model="login.username">
         <v-text-field
           v-model="login.password"
           :append-icon="showpass ? 'mdi-eye' : 'mdi-eye-off'"
@@ -105,6 +106,10 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
+
+input[type="text"] {
+  border: 1px solid black;
+}
 
 .login-header {
   color: black;

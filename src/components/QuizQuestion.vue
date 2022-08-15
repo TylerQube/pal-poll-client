@@ -105,8 +105,8 @@ export default {
         return {
             question: null,
             selected: false,
-            curSec: 60,
-            timeLimit: 60,
+            curSec: 4,
+            timeLimit: 4,
             stopwatchInterval: null,
 
             quizEnded: false,
@@ -128,6 +128,9 @@ export default {
                 console.log(this.question.answerOptions)
                 bus.$emit("quiz-ready");
                 setTimeout(() => {
+                    if(this.question != null && this.question.answerOptions && this.question.answerOptions.length > 0) {
+                      // select random quiz option
+                    }
                     this.countdown();
                 }, 1000);
             }).catch(e => {
@@ -161,6 +164,10 @@ export default {
           if(!this.question.answerOptions || this.question.answerOptions.length == 0) this.$refs.carousel.disableCarousel();
           // disable timer
           clearInterval(this.stopwatchInterval);
+          
+          if(this.question.answerOptions && this.question.answerOptions.length > 0 && this.multiChoiceAnswer == null) {
+            this.multiChoiceAnswer = ""
+          }
 
           const guess = this.question.answerOptions.length > 0 ? this.multiChoiceAnswer : this.pollAnswer;
           // Use stopwatch time if quiz, use all elapsed time if poll
@@ -182,7 +189,8 @@ export default {
             headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` }
           }).then(res => {
             console.log(res);
-          if(res.data.correctIndex) this.revealAnswer(res.data.correctIndex);
+            console.log(res.data.correctIndex)
+            if(res.data.correctIndex != undefined) this.revealAnswer(res.data.correctIndex);
           }).catch(e => {
             console.log(e)
           }).finally(() => {
@@ -190,6 +198,7 @@ export default {
           });
         },
         revealAnswer(correctIndex) {
+          console.log("revealing answer")
           if(!this.question.answerOptions) return;
           for(let i = 0; i < this.question.answerOptions.length; i++) {
             const label = document.getElementById(`label_${i}`);

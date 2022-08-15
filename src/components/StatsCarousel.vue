@@ -42,8 +42,11 @@ export default {
         initialIndex: 2
       },
 
-      statsCards: [
+      initCards: [
         -2, -1, 0
+      ],
+      statsCards: [
+
       ],
 
       statsInfo: [
@@ -64,7 +67,6 @@ export default {
       if(desc && event == 1) {
         console.log(this.statsCards)
         ind = this.statsCards[0] - 1;
-        this.statsCards.splice(0, 0, ind);
       }
 
       if(ind) {
@@ -80,11 +82,13 @@ export default {
         headers: { Authorization: `Bearer ${localStorage.getItem('jwt')}` }
       }).then(res => {
         if(res.status == 200) {
+          this.statsCards.splice(0, 0, relativeIndex);
           this.createCard(res);
         }
       }).catch((e) => {
         console.log(e);
         console.log(e.response.data.msg)
+        if(!e.response.data.msg) return
         if(e.response.data.msg.includes("User has not played")) {
           console.log("Not played")
           this.statsInfo.push({
@@ -105,9 +109,10 @@ export default {
     }
   },
   async mounted() {
-    for(let i = this.statsCards.length - 1; i >= 0; i--) {
-      await this.loadStats(this.statsCards[i]);
+    for(let i = this.initCards.length - 1; i >= 0; i--) {
+      await this.loadStats(this.initCards[i]);
     }
+    this.$refs.flickity.rerender();
   }
 }
 </script>
@@ -124,11 +129,10 @@ export default {
 
 #stats-carousel {
   .flickity-viewport {
-   padding-top: 1rem;
 
     height: /* calc(100vh - 60px); */ calc(100vh - 60px);
-    overflow-y: scroll !important;
-    overflow-x: hidden;
+    // overflow-y: scroll !important;
+    // overflow-x: hidden;
   }
 }
 

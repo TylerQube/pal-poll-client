@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="card-container">
     <v-card v-show="question != null" class="stats-card">
       <div v-if="notPlayed" class="error-container d-flex flex-column justify-center align-center">
         <h2 style="max-width: 60vw;">Go play and come back to see the results!</h2>
@@ -44,7 +44,9 @@
               class="result-img" 
               :src="require(`../assets/friends/${name}.jpg`)" 
               :alt="name"> -->
-            <div class="img-wrapper">
+            <div class="img-wrapper"
+                v-if="staticFriendList.includes(name)"
+              >
               <div
                 class="result-img"
                 :style="{ 'background-image': 'url(' + require('../assets/friends/' + name + '.jpg') + ')' }"
@@ -173,7 +175,20 @@ export default {
             //   questionBody: '',
             // },
             showCard: false,
-            imgList: []
+            imgList: [],
+
+            staticFriendList: [
+              'abi',
+              'dean',
+              'cor',
+              'emilia',
+              'esther',
+              'ethan',
+              'mya',
+              'jai',
+              'tyler',
+              'mo'
+            ]
         };
     },
     methods: {
@@ -211,6 +226,7 @@ export default {
                 return [name.toLowerCase()];
             }
             else {
+                if(this.guesses.length == 0) return ['sad_egg']
                 // calculate most voted person
                 console.log("DA POPULAR VOTES")
                 console.log(this.voteCounts.popularVote)
@@ -273,10 +289,17 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-  .loading-container {
-    position: absolute;
+  .card-container {
+    padding-top: 1rem;
+
     height: calc(100vh - 60px);
     width: 100%;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    // margin: 0 5vw;
+
+    overflow-y: scroll;
   }
 
   .error-container {
@@ -286,9 +309,9 @@ export default {
   }
 
   .stats-card {
+
     width: min(95vw, 800px);
-    min-height: 75vh;
-    margin: 0 5vw;
+    // min-height: 75vh;
     margin-bottom: 1rem;
   }
 

@@ -6,6 +6,7 @@ import ProfileView from '../views/ProfileView'
 import AdminView from '../views/AdminView'
 import QuizView from '../views/QuizView'
 import StatsView from '../views/StatsView'
+import PageNotFound from '../views/PageNotFound'
 
 Vue.use(VueRouter)
 
@@ -54,6 +55,10 @@ const routes = [
     meta: {
       requiresAuth: true,
     }
+  },
+  {
+    path: '*',
+    component: PageNotFound
   }
 ]
 

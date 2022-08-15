@@ -180,7 +180,7 @@
           >
             <v-btn
               plain
-              v-if="questionForm.answerOptions.length < 4 && this.editing"
+              v-if="questionForm.answerOptions.length < 10 && this.editing"
               @click="questionForm.answerOptions.push('')"
             >
               Add Option

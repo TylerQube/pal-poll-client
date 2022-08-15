@@ -70,11 +70,14 @@ export default {
         responsive: true,
         scales: {
           xAxes: [{
+
             gridLines: {
+              display: false,
               color: "rgba(0, 0, 0, 0)",
             },
             ticks: {
               fontFamily: 'Nunito',
+              fontSize: 15
             },
           }],
           yAxes: [{
@@ -84,7 +87,7 @@ export default {
             ticks: {
               display: false,
               precision: 0,
-              fontSize: 15,
+              fontSize: 20,
               min: 0,
               stepSize: 1
             }

@@ -3,15 +3,15 @@
     <v-card class="card">
       <p class="login-header">Login</p>
       <v-form>
-        <!-- <v-text-field 
-          v-model="login.username" 
+        <v-text-field 
+          @input="evt => login.username = evt"
           label="Username" 
           :error="errorMsg != ''"
           @keydown="errorMsg = ''"
-        ></v-text-field> -->
-        <input type="text" v-model="login.username">
+        ></v-text-field>
+        <!-- <input type="text" v-model="login.username" @compositionupdate="inputModel($event, login.username)"> -->
         <v-text-field
-          v-model="login.password"
+          @input="evt => login.password = evt"
           :append-icon="showpass ? 'mdi-eye' : 'mdi-eye-off'"
           :type="showpass ? 'text' : 'password'"
           label="Password"
@@ -73,6 +73,10 @@ export default {
     }
   },
   methods: {
+    updateUsername(evt) {
+      console.log(evt);
+      this.login.username = evt
+    },
     loginUser() {
         console.log("logging in...");
         this.loggingIn = true;

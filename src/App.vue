@@ -208,7 +208,7 @@ export default {
     },
     async getUserInfo() {
       console.log("refreshing user info...")
-      return this.$http.get("http://localhost:3030/user/me", {
+      return this.$http.get(`https://${process.env.VUE_APP_API_URL}/user/me`, {
           headers: { Authorization: `Bearer ${this.token}` }
         }).then(res => {
           console.log(res.data);
@@ -224,7 +224,7 @@ export default {
       this.avatarUrl = res.data;
     },
     async checkAdmin() {
-      const res = await fetch("http://localhost:3030/user/adminAuth", {
+      const res = await fetch(`https://${process.env.VUE_APP_API_URL}/user/adminAuth`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` }
       });
       this.isAdmin = res.status == 200;

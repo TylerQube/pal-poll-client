@@ -120,7 +120,7 @@ export default {
           this.$router.push("/stats");
         },
         getQuestion() {
-            return this.$http.get("http://localhost:3030/questions/daily", {
+            return this.$http.get(`https://${process.env.VUE_APP_API_URL}/questions/daily`, {
                 headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` }
             }).then(res => {
                 console.log(res.data);

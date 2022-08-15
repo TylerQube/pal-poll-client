@@ -75,7 +75,8 @@ export default {
     loginUser() {
         console.log("logging in...");
         this.loggingIn = true;
-        return this.$http.post("http://localhost:3030/user/login", {
+        console.log(process.env)
+        return this.$http.post(`https://${process.env.VUE_APP_API_URL}/user/login`, {
           username: this.login.username,
           password: this.login.password
         }).then(res => {

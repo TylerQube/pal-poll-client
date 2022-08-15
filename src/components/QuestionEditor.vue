@@ -411,7 +411,7 @@ export default {
         questionId: this.questionId
       };
 
-      await this.$http.post("http://localhost:3030/questions/delete", reqBody, {
+      await this.$http.post(`https://${process.env.VUE_APP_API_URL}/questions/delete`, reqBody, {
         headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` }
       }).then(res => {
         console.log(res);
@@ -446,7 +446,7 @@ export default {
           questionType: this.questionForm.questionType
         };
 
-        return this.$http.post("http://localhost:3030/questions/add", reqBody, {
+        return this.$http.post(`https://${process.env.VUE_APP_API_URL}/questions/add`, reqBody, {
           headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` }
         }).then(res => {
           console.log(res)
@@ -483,7 +483,7 @@ export default {
         questionType: this.questionForm.questionType
       };
 
-      return this.$http.post("http://localhost:3030/questions/update", reqBody, {
+      return this.$http.post(`https://${process.env.VUE_APP_API_URL}/questions/update`, reqBody, {
         headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` }
       }).then(res => {
         console.log(res)

@@ -192,7 +192,8 @@ export default {
         newOrderNum: newIndex,
       };
 
-      await this.$http.post("http://localhost:3030/questions/order", reqBody, {
+      console.log(process.env.VUE_APP_API_URL)
+      await this.$http.post(`https://${process.env.VUE_APP_API_URL}questions/order`, reqBody, {
         headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` }
       }).then(res => {
         console.log(res);

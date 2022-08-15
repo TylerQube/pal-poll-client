@@ -82,7 +82,7 @@ router.beforeEach(async (to, from, next) => {
     if(to.name != 'login') {
       console.log("Must authenticate user");
       // authenticate admin through backend
-      const res = await fetch("http://localhost:3030/user/userAuth", {
+      const res = await fetch(`https://${process.env.VUE_APP_API_URL}/user/userAuth`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` }
       });
       console.log(res)
@@ -124,7 +124,7 @@ router.beforeEach(async (to, from, next) => {
   else if (to.meta.requiresAdmin) {
     console.log("Must authenticate admin");
     // authenticate admin through backend
-    const res = await fetch("http://localhost:3030/user/adminAuth", {
+    const res = await fetch(`https://${process.env.VUE_APP_API_URL}/user/adminAuth`, {
       headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` }
     });
     console.log(res)

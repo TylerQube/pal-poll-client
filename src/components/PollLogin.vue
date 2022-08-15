@@ -4,14 +4,13 @@
       <p class="login-header">Login</p>
       <v-form>
         <v-text-field 
-          @input="evt => login.username = evt"
+          v-model="login.username"
           label="Username" 
           :error="errorMsg != ''"
           @keydown="errorMsg = ''"
         ></v-text-field>
-        <!-- <input type="text" v-model="login.username" @compositionupdate="inputModel($event, login.username)"> -->
         <v-text-field
-          @input="evt => login.password = evt"
+          v-model="login.password"
           :append-icon="showpass ? 'mdi-eye' : 'mdi-eye-off'"
           :type="showpass ? 'text' : 'password'"
           label="Password"

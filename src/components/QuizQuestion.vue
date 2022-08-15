@@ -165,10 +165,6 @@ export default {
           // disable timer
           clearInterval(this.stopwatchInterval);
           
-          if(this.question.answerOptions && this.question.answerOptions.length > 0 && this.multiChoiceAnswer == null) {
-            this.multiChoiceAnswer = ""
-          }
-
           const guess = this.question.answerOptions.length > 0 ? this.multiChoiceAnswer : this.pollAnswer;
           // Use stopwatch time if quiz, use all elapsed time if poll
           const elapsed = this.question.answerOptions.length > 0 ? 
@@ -180,7 +176,11 @@ export default {
         async submitAnswer(userAnswer, guessTime) {
           this.submittingQuiz = true;
 
+          console.log("Is Quiz: " + this.isQuiz);
+          console.log("Failed: " + this.multiChoiceAnswer)
+
           const body = {
+            failed: this.isQuiz && this.multiChoiceAnswer == null,
             guess: userAnswer,
             guessTime: guessTime
           };
@@ -214,6 +214,9 @@ export default {
         }
     },
     computed: {
+        isQuiz() {
+          return this.question && this.question.answerOptions && this.question.answerOptions.length > 0
+        },
         pollAnswer() {
           return this.$refs.carousel.friendsImgs[this.$refs.carousel.selectedIndex].name;
         },

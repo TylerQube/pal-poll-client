@@ -39,11 +39,12 @@ export default {
       flickityOptions: {
         setGallerySize: false,
         pageDots: false,
-        initialIndex: 2
+        initialIndex: 0,
+        rightToLeft: true
       },
 
       initCards: [
-        -2, -1, 0
+        0, -1, -2
       ],
       statsCards: [
 
@@ -66,7 +67,7 @@ export default {
       // if on second to last, or second element
       if(desc && event == 1) {
         console.log(this.statsCards)
-        ind = this.statsCards[0] - 1;
+        ind = this.statsCards[this.statsCards.length - 1] - 1;
       }
 
       if(ind) {
@@ -82,7 +83,8 @@ export default {
         headers: { Authorization: `Bearer ${localStorage.getItem('jwt')}` }
       }).then(res => {
         if(res.status == 200) {
-          this.statsCards.splice(0, 0, relativeIndex);
+          // this.statsCards.splice(0, 0, relativeIndex);
+          this.statsCards.push(relativeIndex);
           this.createCard(res);
         }
       }).catch((e) => {
@@ -109,10 +111,10 @@ export default {
     }
   },
   async mounted() {
-    for(let i = this.initCards.length - 1; i >= 0; i--) {
+    for(let i = 0; i < this.initCards.length; i++) {
       await this.loadStats(this.initCards[i]);
+      if(i == 0) this.$refs.flickity.rerender();
     }
-    this.$refs.flickity.rerender();
   }
 }
 </script>

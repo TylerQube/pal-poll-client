@@ -298,7 +298,7 @@ export default {
         }
     },
     mounted() {
-      this.flickity.prepend([this.$el]);
+      this.flickity.append([this.$el]);
       this.imgList = this.resultName;
     },
 }

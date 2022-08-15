@@ -14,9 +14,9 @@
 
 <script>
 import { Bar } from 'vue-chartjs/legacy'
-// import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale } from 'chart.js'
+import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale } from 'chart.js'
 
-// ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale)
+ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale)
 
 export default {
   name: 'StatsBarChart',
@@ -69,38 +69,44 @@ export default {
       chartOptions: {
         responsive: true,
         scales: {
-          xAxes: [{
-
-            gridLines: {
+          xAxis: {
+            grid: {
               display: false,
-              color: "rgba(0, 0, 0, 0)",
             },
             ticks: {
-              fontFamily: 'Nunito',
-              fontSize: 15
+              font: {
+                family: 'Nunito',
+                size: 15
+              }
             },
-          }],
-          yAxes: [{
-            gridLines: {
-              color: "rgba(0, 0, 0, 0)",
-            },
-            ticks: {
+          },
+          
+          yAxis: {
+            display: false,
+            grid: {
               display: false,
-              precision: 0,
-              fontSize: 20,
-              min: 0,
-              stepSize: 1
-            }
-          }],
+            },
+          },
         },
-        legend: {
-          display: false,
+        animation: {
+          duration: 600,
+          easing: 'easeInOutQuad'
         },
-        tooltips: {
-          titleFontSize: 30,
+        plugins: {
+          tooltip: {
+          titleFont: {
+            size: 25
+          },
+          bodyFont: {
+            size: 20
+          },
           bodyFontSize: 30,
           fontFamily: 'Nunito'
-        }
+        },
+          legend: {
+            display: false
+          }
+        },
       }
     }
   },

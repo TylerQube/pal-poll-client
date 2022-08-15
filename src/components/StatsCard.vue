@@ -2,7 +2,7 @@
   <div class="card-container">
     <v-card v-show="question != null" class="stats-card">
       <div v-if="notPlayed" class="error-container d-flex flex-column justify-center align-center">
-        <h2 style="max-width: 60vw;">Go play and come back to see the results!</h2>
+        <h2 class="shadow" style="max-width: 60vw;">Go play and come back to see the results!</h2>
       </div>
       <v-container v-if="!notPlayed">
         <v-row>
@@ -65,6 +65,8 @@
           <v-col>
             <StatsBarChart
               :voteCounts="voteCounts"
+              :chartId="'chart-' + question.orderNum"
+              :datasetIdKey="'dataset-' + question.orderNum"
               v-show="numVotes > 0"
             ></StatsBarChart>
           </v-col>
@@ -320,12 +322,11 @@ export default {
 
   .error-container {
     position: absolute;
-    height: 100%;
+    height: calc(100vh - 60px);
     width: 100%;
   }
 
   .stats-card {
-
     width: min(95vw, 800px);
     // min-height: 75vh;
     margin-bottom: 1rem;

@@ -185,7 +185,7 @@ export default {
             guessTime: guessTime
           };
 
-          await this.$http.post(`http://localhost:3030/guess/submit`, body, {
+          await this.$http.post(`https://${process.env.VUE_APP_API_URL}/guess/submit`, body, {
             headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` }
           }).then(res => {
             console.log(res);

@@ -99,7 +99,7 @@ export default {
   },
   methods: {
     getConfig() {
-      return this.$http.get(`http://localhost:3030/config/get`, {
+      return this.$http.get(`https://${process.env.VUE_APP_API_URL}/config/get`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` }
       }).then(res => {  
         console.log(res);
@@ -133,7 +133,7 @@ export default {
 
         this.submittingDate = true;
 
-        return this.$http.post(`http://localhost:3030/config/update`, body, {
+        return this.$http.post(`https://${process.env.VUE_APP_API_URL}/config/update`, body, {
             headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` }
         }).then(res => {  
             console.log(res)

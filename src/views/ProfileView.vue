@@ -278,7 +278,7 @@ export default {
       }
     },
     async fetchAvatar() {
-      const res = await this.$http.get(`http://localhost:3030/user/avatar?username=${this.profileInfo.username}`);
+      const res = await this.$http.get(`https://${process.env.VUE_APP_API_URL}/user/avatar?username=${this.profileInfo.username}`);
       console.log(res);
       this.avatarUrl = res.data;
     },

@@ -144,7 +144,7 @@ export default {
   },
   methods: {
     getQuestions(startNum, num) {
-      this.$http.get(`http://localhost:3030/questions/get/${startNum}/${num}`, {
+      this.$http.get(`https://${process.env.VUE_APP_API_URL}/questions/get/${startNum}/${num}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` }
       }).then(res => {
         console.log("Received questions");

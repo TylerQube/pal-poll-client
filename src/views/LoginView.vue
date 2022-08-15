@@ -7,7 +7,7 @@
                 cols="12"
                 sm="6"
                 md="5"
-                lg="3"
+                lg="5"
             >
                 <PollLogin/>
             </v-col>

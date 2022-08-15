@@ -1,18 +1,31 @@
 <template>
-  <div class="container">
-    <p class="login-header">Login</p>
+  <!-- <div class="container"> -->
+    <v-card class="card">
+      <p class="login-header">Login</p>
       <v-form>
         <v-text-field 
           v-model="login.username" 
           label="Username" 
+          :error="errorMsg != ''"
+          @keydown="errorMsg = ''"
         ></v-text-field>
         <v-text-field
-            v-model="login.password"
-            :append-icon="showpass ? 'mdi-eye' : 'mdi-eye-off'"
-            :type="showpass ? 'text' : 'password'"
-            label="Password"
-            @click:append="showpass = !showpass"
-          ></v-text-field>
+          v-model="login.password"
+          :append-icon="showpass ? 'mdi-eye' : 'mdi-eye-off'"
+          :type="showpass ? 'text' : 'password'"
+          label="Password"
+          @click:append="showpass = !showpass"
+          :error="errorMsg != ''"
+          @keydown="errorMsg = ''"
+        ></v-text-field>
+        <v-alert
+          dense
+          type="error"
+          class="login-error"
+          v-show="errorMsg != ''"
+        >
+          {{ errorMsg }}
+        </v-alert>
         <v-row>
           <v-spacer></v-spacer>
           <v-col
@@ -25,15 +38,15 @@
             :disabled="btnDisabled"
             :loading="loggingIn"
             @click="loginUser"
-            class="primary"
-            
+            color="purple"
+            class="login-btn"
           >Log In</v-btn>
           </v-col>
           <v-spacer></v-spacer>
         </v-row>
       </v-form>
-    
-  </div>
+    </v-card>
+  <!-- </div> -->
 </template>
 
 <script>
@@ -48,7 +61,9 @@ export default {
         password: "",
       },
       showpass: false,
-      loggingIn: false
+      loggingIn: false,
+
+      errorMsg: ""
     }
   },
   computed: {
@@ -76,6 +91,11 @@ export default {
         }).catch(e => {
           console.log(e);
           this.loggingIn = false;
+
+          if(e.response.status == 401)
+            this.errorMsg = "Invalid login information"
+          else
+            this.errorMsg = "Something went wrong :("
         });
     }
   }
@@ -91,20 +111,37 @@ export default {
   font-weight: 400;
 }
 
-.container {
-  h1, h2, h3 {
-      color: black;
-  }
-  display: inline-block;
-  font-family: 'Abel', sans-serif;
-  border-radius: 0.2em;
-  padding: 1em 1em;
-
-  min-width: 25%;
-
-  border: 1px solid rgb(214, 214, 214);
-  // box-shadow: 3px 3px 8px 1px rgba(219,219,219,0.8);
+.card {
+  padding: 1rem;
 }
+
+.login-btn {
+  color: white;
+}
+
+.container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+// .container {
+//   h1, h2, h3 {
+//       color: black;
+//   }
+//   display: inline-block;
+//   font-family: 'Abel', sans-serif;
+//   border-radius: 0.2em;
+//   padding: 1em 1em;
+
+//   min-width: 25%;
+
+//   border: 1px solid rgb(214, 214, 214);
+//   // box-shadow: 3px 3px 8px 1px rgba(219,219,219,0.8);
+// }
 
 v-form {
   display: flex;

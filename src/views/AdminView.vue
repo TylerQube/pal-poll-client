@@ -178,7 +178,7 @@ export default {
       const newIndex = moved.addedIndex;
       const oldIndex = moved.removedIndex;
 
-      const movedQuestion = this.questions[oldIndex];
+      const movedQuestion = this.questions[oldIndex].question;
 
       console.log("New: " + newIndex);
       console.log("Days since: " + this.daysSince)
@@ -196,8 +196,10 @@ export default {
         headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` }
       }).then(res => {
         console.log(res);
+
       }).catch(e => {
         console.log(e);
+        this.arrayMove(this.questions, newIndex, oldIndex);
       });
     },
     // Utility function sourced from https://stackoverflow.com/questions/5306680/move-an-array-element-from-one-array-position-to-another

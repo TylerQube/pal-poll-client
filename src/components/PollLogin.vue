@@ -4,8 +4,7 @@
       <p class="login-header">Login</p>
       <v-form>
         <v-text-field 
-          :value="login.username"
-          @input="login.username = $event"
+          v-model="login.username"
           label="Username" 
           :error="errorMsg != ''"
           @keydown="errorMsg = ''"

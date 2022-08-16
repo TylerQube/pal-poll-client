@@ -43,7 +43,7 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 
 $btn-bg: #8c1bc9;
 $btn-base: white;

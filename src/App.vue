@@ -45,7 +45,7 @@
         </div>
         <v-spacer></v-spacer>
         <v-toolbar-title class="toolbar-text" v-if="this.userInfo != null && this.userInfo.displayName != null">Hi, {{ this.userInfo.displayName }}!</v-toolbar-title>
-        <v-btn v-if="this.token == null && this.$route.name != 'login'" class="primary"><router-link to="/login">Login</router-link></v-btn>
+        <v-btn v-if="this.token == null && this.$route.name != 'login'" class="primary"><router-link to="/login" style="text-decoration: none; color: white;">Login</router-link></v-btn>
         <v-menu offset-y v-if="this.token != null && !isMobile">
           <template v-slot:activator="{ on, attrs }">
             <div v-bind="attrs" v-on="on">

@@ -17,7 +17,9 @@
           >Welcome to PalPoll</h1>
           <h5 :class="flavorTextClasslist + 'mt-5 mb-3'"
           >How well do you really know your friends?</h5>
-          <CoolButton @click.native="$router.push('/play')" v-show="finishedTutorial" class="mt-5" label="PLAY"></CoolButton>
+          <router-link to="/play" class="play-router">
+            <CoolButton  v-show="finishedTutorial" class="mt-5" label="PLAY"></CoolButton>
+          </router-link>
           <h6 v-show="!finishedTutorial" class="
             shadow 
             flavor-text
@@ -281,5 +283,9 @@ export default {
     0% {transform: translateY(0)}
     50% {transform: translateY(-10px)}
     100% {transform: translateY(0)}
+  }
+
+  .play-router {
+    text-decoration: none;
   }
 </style>

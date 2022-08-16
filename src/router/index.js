@@ -7,6 +7,7 @@ import AdminView from '../views/AdminView'
 import QuizView from '../views/QuizView'
 import StatsView from '../views/StatsView'
 import PageNotFound from '../views/PageNotFound'
+import PasswordReset from '../components/PasswordReset'
 import { bus } from '@/main'
 
 Vue.use(VueRouter)
@@ -57,6 +58,10 @@ const routes = [
     meta: {
       requiresAuth: true,
     }
+  },
+  {
+    path: '/password-reset/:token', 
+    component: PasswordReset
   },
   {
     path: '*',

@@ -82,7 +82,7 @@ router.beforeEach(async (to, from, next) => {
     if(to.name != 'login') {
       console.log("Must authenticate user");
       // authenticate admin through backend
-      const res = await fetch(`https://${process.env.VUE_APP_API_URL}/user/userAuth`, {
+      const res = await fetch(`${process.env.VUE_APP_API_URL}/user/userAuth`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` }
       });
       console.log(res)

@@ -144,7 +144,7 @@ export default {
   },
   methods: {
     getQuestions(startNum, num) {
-      this.$http.get(`https://${process.env.VUE_APP_API_URL}/questions/get/${startNum}/${num}`, {
+      this.$http.get(`${process.env.VUE_APP_API_URL}/questions/get/${startNum}/${num}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` }
       }).then(res => {
         console.log("Received questions");
@@ -193,7 +193,7 @@ export default {
       };
 
       console.log(process.env.VUE_APP_API_URL)
-      await this.$http.post(`https://${process.env.VUE_APP_API_URL}questions/order`, reqBody, {
+      await this.$http.post(`${process.env.VUE_APP_API_URL}questions/order`, reqBody, {
         headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` }
       }).then(res => {
         console.log(res);

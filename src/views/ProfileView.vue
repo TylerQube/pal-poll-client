@@ -203,7 +203,7 @@ export default {
       if(this.origInfo.email != this.profileInfo.email) config.email = this.profileInfo.email;
       if(this.origInfo.displayName != this.profileInfo.displayName) config.displayName = this.profileInfo.displayName;
 
-      return this.$http.post(`https://${process.env.VUE_APP_API_URL}/user/updateinfo`, config, {
+      return this.$http.post(`${process.env.VUE_APP_API_URL}/user/updateinfo`, config, {
         headers: { Authorization: `Bearer ${token}` }
       })
         .then(res => {
@@ -249,7 +249,7 @@ export default {
       }
 
       try {
-        await this.$http.post(`https://${process.env.VUE_APP_API_URL}/user/updatepfp`, formData, 
+        await this.$http.post(`${process.env.VUE_APP_API_URL}/user/updatepfp`, formData, 
         {
           headers: { 
             Authorization: `Bearer ${localStorage.getItem("jwt")}` ,
@@ -278,7 +278,7 @@ export default {
       }
     },
     async fetchAvatar() {
-      const res = await this.$http.get(`https://${process.env.VUE_APP_API_URL}/user/avatar?username=${this.profileInfo.username}`);
+      const res = await this.$http.get(`${process.env.VUE_APP_API_URL}/user/avatar?username=${this.profileInfo.username}`);
       console.log(res);
       this.avatarUrl = res.data;
     },

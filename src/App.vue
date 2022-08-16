@@ -91,6 +91,7 @@
           </v-card>
         </v-dialog>
       </v-app-bar>
+
     <router-view style="z-index: 1;"/>
     <v-navigation-drawer
       v-model="showDrawer"
@@ -208,7 +209,7 @@ export default {
     },
     async getUserInfo() {
       console.log("refreshing user info...")
-      return this.$http.get(`https://${process.env.VUE_APP_API_URL}/user/me`, {
+      return this.$http.get(`${process.env.VUE_APP_API_URL}/user/me`, {
           headers: { Authorization: `Bearer ${this.token}` }
         }).then(res => {
           console.log(res.data);
@@ -220,11 +221,11 @@ export default {
         });
     },
     async fetchAvatar() {
-      const res = await this.$http.get(`https://${process.env.VUE_APP_API_URL}/user/avatar?username=${this.userInfo.name}`);
+      const res = await this.$http.get(`${process.env.VUE_APP_API_URL}/user/avatar?username=${this.userInfo.name}`);
       this.avatarUrl = res.data;
     },
     async checkAdmin() {
-      const res = await fetch(`https://${process.env.VUE_APP_API_URL}/user/adminAuth`, {
+      const res = await fetch(`${process.env.VUE_APP_API_URL}/user/adminAuth`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` }
       });
       this.isAdmin = res.status == 200;

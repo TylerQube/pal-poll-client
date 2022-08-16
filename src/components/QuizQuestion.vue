@@ -120,7 +120,7 @@ export default {
           this.$router.push("/stats");
         },
         getQuestion() {
-            return this.$http.get(`https://${process.env.VUE_APP_API_URL}/questions/daily`, {
+            return this.$http.get(`${process.env.VUE_APP_API_URL}/questions/daily`, {
                 headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` }
             }).then(res => {
                 console.log(res.data);
@@ -185,7 +185,7 @@ export default {
             guessTime: guessTime
           };
 
-          await this.$http.post(`https://${process.env.VUE_APP_API_URL}/guess/submit`, body, {
+          await this.$http.post(`${process.env.VUE_APP_API_URL}/guess/submit`, body, {
             headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` }
           }).then(res => {
             console.log(res);

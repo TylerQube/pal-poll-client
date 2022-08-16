@@ -79,7 +79,7 @@ export default {
     },  
     async loadStats(relativeIndex) {
       console.log(process.env)
-      return await this.$http.get(`https://${process.env.VUE_APP_API_URL}/stats/get/${relativeIndex}`, {
+      return await this.$http.get(`${process.env.VUE_APP_API_URL}/stats/get/${relativeIndex}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('jwt')}` }
       }).then(res => {
         if(res.status == 200) {

@@ -167,7 +167,7 @@ export default {
     },
     setupQuiz() {
       this.loadingQ = true;
-      return this.$http.get(`https://${process.env.VUE_APP_API_URL}/questions/daily/type`, {
+      return this.$http.get(`${process.env.VUE_APP_API_URL}/questions/daily/type`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('jwt')}` }
       }).then(res => {
         console.log(res.data);

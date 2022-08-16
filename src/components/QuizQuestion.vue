@@ -105,8 +105,8 @@ export default {
         return {
             question: null,
             selected: false,
-            curSec: 4,
-            timeLimit: 4,
+            curSec: 60,
+            timeLimit: 60,
             stopwatchInterval: null,
 
             quizEnded: false,

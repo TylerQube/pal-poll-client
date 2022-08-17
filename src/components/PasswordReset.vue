@@ -106,10 +106,6 @@
         <v-spacer></v-spacer>
       </v-row>
     </v-container>
-    
-    <div class="error-container">
-
-    </div>
   </div>
 </template>
 

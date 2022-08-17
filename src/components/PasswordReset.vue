@@ -73,7 +73,7 @@
                     @click="submitPassword"
                     color="purple"
                     class="submit-btn"
-                  >Log In</v-btn>
+                  >Reset</v-btn>
                 </v-col>
                 <v-col cols="12" v-else>
                   <v-alert

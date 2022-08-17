@@ -49,6 +49,20 @@
                 </v-col>
               </v-row>
               <v-row>
+                <v-col
+                  cols="12"
+                  sm="auto"
+                  v-if="origInfo.email != ''"
+                >
+                  <router-link to="/forgot" style="text-decoration: none;">
+                    <v-btn
+                      block
+                      color="purple"
+                      style="color: white !important;"
+                      :disabled="origInfo.email == ''"
+                    >Reset Password</v-btn>  
+                  </router-link>
+                </v-col>
                 <v-spacer></v-spacer>
                 <v-col
                   cols="12"

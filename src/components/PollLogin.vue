@@ -44,6 +44,13 @@
           </v-col>
           <v-spacer></v-spacer>
         </v-row>
+        <v-row>
+          <v-spacer></v-spacer>
+          <v-col cols="auto">
+            <router-link to="/forgot" class="forgot-password">Forgot Password</router-link>
+          </v-col>
+          <v-spacer></v-spacer>
+        </v-row>
       </v-form>
     </v-card>
   <!-- </div> -->
@@ -170,4 +177,8 @@ v-form {
 //         background-color: rgb(156, 156, 156);
 //     }
 // }
+
+.forgot-password {
+  text-decoration: underline;
+}
 </style>

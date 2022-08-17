@@ -8,6 +8,7 @@ import QuizView from '../views/QuizView'
 import StatsView from '../views/StatsView'
 import PageNotFound from '../views/PageNotFound'
 import PasswordReset from '../components/PasswordReset'
+import LinkExpired from '../views/LinkExpired'
 import { bus } from '@/main'
 
 Vue.use(VueRouter)
@@ -61,7 +62,15 @@ const routes = [
   },
   {
     path: '/password-reset/:token', 
-    component: PasswordReset
+    component: PasswordReset,
+    meta: {
+      authResetToken: true
+    }
+  },
+  {
+    path: '/expired', 
+    name: 'expired',
+    component: LinkExpired,
   },
   {
     path: '*',
@@ -78,6 +87,12 @@ const router = new VueRouter({
 router.beforeEach(async (to, from, next) => {
 
   console.log(to.name)
+
+  if(to.meta.authResetToken) {
+    const res = await fetch(`${process.env.VUE_APP_API_URL}/password-reset/verify/${to.params.token}`)
+    console.log(res);
+    if(res.status != 200) return next({ name: 'expired' })
+  }
   if(to.meta.requiresAuth) {
     if(localStorage.getItem("jwt") == null) {
       console.log(to.name + " requires auth...")
@@ -100,22 +115,6 @@ router.beforeEach(async (to, from, next) => {
       } 
     }
   }
-
-  // if (to.meta.requiresAuth && localStorage.getItem("jwt") == null) {
-  //   console.log(to.name + " requires auth...")
-  //   return next({ name: 'login' })
-  // }
-  // if(to.meta.requiresAuth && localStorage.getItem("jwt") != null && to.name != 'login' && from.name != 'login') {
-  //   console.log("Must authenticate user");
-  //   // authenticate admin through backend
-  //   const res = await fetch("http://localhost:3030/user/userAuth", {
-  //     headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` }
-  //   });
-  //   console.log(res)
-  //   const auth = res.status == 200;
-
-  //   if(!auth) return next({ name: 'login' })
-  // }
   
   if (to.name == 'login' && localStorage.getItem("jwt") != null && localStorage.getItem('jwt') != "null") {
     console.log("already logged in")
@@ -129,7 +128,7 @@ router.beforeEach(async (to, from, next) => {
   else if (to.meta.requiresAdmin) {
     console.log("Must authenticate admin");
     // authenticate admin through backend
-    const res = await fetch(`https://${process.env.VUE_APP_API_URL}/user/adminAuth`, {
+    const res = await fetch(`${process.env.VUE_APP_API_URL}/user/adminAuth`, {
       headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` }
     });
     console.log(res)

@@ -9,6 +9,7 @@ import StatsView from '../views/StatsView'
 import PageNotFound from '../views/PageNotFound'
 import PasswordReset from '../components/PasswordReset'
 import LinkExpired from '../views/LinkExpired'
+import ForgotPassword from '../views/ForgotPassword'
 import { bus } from '@/main'
 
 Vue.use(VueRouter)
@@ -71,6 +72,11 @@ const routes = [
     path: '/expired', 
     name: 'expired',
     component: LinkExpired,
+  },
+  {
+    path: '/forgot',
+    name: 'forgot-password',
+    component: ForgotPassword
   },
   {
     path: '*',

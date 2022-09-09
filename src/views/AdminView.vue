@@ -193,7 +193,7 @@ export default {
       };
 
       console.log(process.env.VUE_APP_API_URL)
-      await this.$http.post(`${process.env.VUE_APP_API_URL}questions/order`, reqBody, {
+      await this.$http.post(`${process.env.VUE_APP_API_URL}/questions/order`, reqBody, {
         headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` }
       }).then(res => {
         console.log(res);

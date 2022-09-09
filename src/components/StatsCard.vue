@@ -239,16 +239,11 @@ export default {
         resultName() {
             if (this.isQuiz) {
                 const name = this.question.answerOptions[this.question.answerNumber].answerBody;
-                console.log("The quiz answer")
-                console.log([name.toLowerCase()])
                 return [name.toLowerCase()];
             }
             else {
                 if(this.guesses.length == 0) return ['sad_egg']
                 // calculate most voted person
-                console.log("DA POPULAR VOTES")
-                console.log(this.voteCounts.popularVote)
-                console.log("done")
 
                 return this.voteCounts.popularVote;
             }
@@ -258,7 +253,6 @@ export default {
           const votes = this.guesses;
           let maxVote = 0;
           let popularVote = [];
-          console.log("Vote counts for " + (parseInt(this.question.orderNum) + 1))
 
           for (let i = 0; i < votes.length; i++) {
               const vote = votes[i];
@@ -273,16 +267,11 @@ export default {
               }
           }
 
-          // console.log(maxVote)
-          // console.log("iterating counts after maxes");
           for (const voteCount in voteCounts) {
-              // console.log(voteCount);
-              // console.log(voteCounts[voteCount])
               if(voteCounts[voteCount] >= maxVote) {
                 popularVote.push(voteCount);
               }
           }
-          // console.log("MAX COUNTS LENGTH: " + popularVote.length)
           const counts = {
               popularVote: popularVote.length == 0 ? ['sad_egg'] : popularVote,
               voteCounts: voteCounts

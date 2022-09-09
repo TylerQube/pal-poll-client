@@ -116,7 +116,6 @@ export default {
       for(const entry in votes) {
 
         const count = votes[entry];
-        console.log("Entry: " + typeof(entry))
         if(entry != "null") {
           const label = entry[0].toUpperCase() + entry.slice(1)
           this.chartData.labels.push(label);

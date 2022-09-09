@@ -34,7 +34,7 @@ export default {
 },
   data() {
     return {
-      selectedIndex: 2,
+      selectedIndex: 0,
 
       flickityOptions: {
         setGallerySize: false,
@@ -43,16 +43,15 @@ export default {
         rightToLeft: true
       },
 
-      initCards: [
-        0, -1, -2
-      ],
+      initCardCount: 20,
       statsCards: [
 
       ],
 
       statsInfo: [
         
-      ]
+      ],
+      loadingCards: false,
     }
   },
   methods: {
@@ -61,16 +60,16 @@ export default {
     },
     async updateFlickity(event) {
       // update list
-      const desc = this.selectedIndex >= event;
+      const desc = this.selectedIndex <= event;
+      console.log("descending: " + this.selectedIndex + ", " + event);
 
       let ind = null;
       // if on second to last, or second element
-      if(desc && event == 1) {
-        console.log(this.statsCards)
+      if(desc && event == this.statsCards.length - 2) {
         ind = this.statsCards[this.statsCards.length - 1] - 1;
       }
 
-      if(ind) {
+      if(!this.loadingCards && ind && !this.statsCards.includes(ind)) {
         console.log(`Adding index ${ind}`)
         this.loadStats(ind);
       }
@@ -78,7 +77,6 @@ export default {
       this.selectedIndex = event
     },  
     async loadStats(relativeIndex) {
-      console.log(process.env)
       return await this.$http.get(`${process.env.VUE_APP_API_URL}/stats/get/${relativeIndex}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('jwt')}` }
       }).then(res => {
@@ -100,7 +98,6 @@ export default {
       });
     },
     createCard(res) {
-      console.log("FETCHED QUESTION")
       console.log(res)
       
       this.statsInfo.push({
@@ -111,10 +108,12 @@ export default {
     }
   },
   async mounted() {
-    for(let i = 0; i < this.initCards.length; i++) {
-      await this.loadStats(this.initCards[i]);
+    this.loadingCards = true;
+    for(let i = 0; i < this.initCardCount; i++) {
+      await this.loadStats(-i);
       if(i == 0) this.$refs.flickity.rerender();
     }
+    this.loadingCards = false;
   }
 }
 </script>

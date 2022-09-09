@@ -216,7 +216,7 @@ export default {
     },
   },
   created() {
-    this.getQuestions(0, 10);
+    this.getQuestions(0, 100);
     bus.$on('delete-question', (qIndex) => {
       const qCount = this.questions.length - (qIndex + 1);
 

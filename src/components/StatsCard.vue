@@ -309,6 +309,10 @@ export default {
     overflow-y: scroll;
   }
 
+  .card-container::-webkit-scrollbar {
+    display: none;
+  }
+
   .error-container {
     position: absolute;
     height: calc(100vh - 60px);

@@ -180,16 +180,12 @@ export default {
             imgList: [],
 
             staticFriendList: [
-              'abi',
-              'dean',
-              'cor',
-              'emilia',
-              'esther',
-              'ethan',
-              'mya',
-              'jai',
-              'tyler',
-              'mo'
+            'sayuj',
+            'gina',
+            'lauren',
+            'arya',
+            'jenna',
+            'tyler'
             ]
         };
     },

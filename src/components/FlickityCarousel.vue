@@ -26,15 +26,11 @@ export default {
   data() {
     return {
       friends: [
-        'Abi',
-        'Cor',
-        'Dean',
-        'Emilia',
-        'Esther',
-        'Ethan',
-        'Jai',
-        'Mo',
-        'Mya',
+        'Sayuj',
+        'Gina',
+        'Lauren',
+        'Arya',
+        'Jenna',
         'Tyler'
       ],
       friendsImgs: [],
